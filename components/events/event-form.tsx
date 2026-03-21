@@ -14,19 +14,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const CATEGORIES = [
-  "General",
-  "Technology",
-  "Business",
-  "Music",
-  "Art",
-  "Sports",
-  "Education",
-  "Food",
-  "Health",
-  "Travel",
-] as const;
-
 export interface EventFormData {
   title: string;
   description: string;
@@ -34,7 +21,6 @@ export interface EventFormData {
   time: string;
   venue: string;
   visibility: string;
-  category: string;
   fee: number;
 }
 
@@ -61,9 +47,6 @@ export function EventForm({
   const [visibility, setVisibility] = useState(
     initialData?.visibility ?? "PUBLIC"
   );
-  const [category, setCategory] = useState(
-    initialData?.category ?? "General"
-  );
   const [fee, setFee] = useState(String(initialData?.fee ?? "0"));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -76,7 +59,6 @@ export function EventForm({
       setTime(initialData.time ?? "");
       setVenue(initialData.venue ?? "");
       setVisibility(initialData.visibility ?? "PUBLIC");
-      setCategory(initialData.category ?? "General");
       setFee(String(initialData.fee ?? "0"));
     }
   }, [initialData]);
@@ -193,7 +175,6 @@ export function EventForm({
       time,
       venue,
       visibility,
-      category,
       fee: Number(fee) || 0,
     });
   };
@@ -287,22 +268,6 @@ export function EventForm({
             {errors.venue}
           </p>
         )}
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="category">Category</Label>
-        <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger id="category">
-            <SelectValue placeholder="Select category" />
-          </SelectTrigger>
-          <SelectContent>
-            {CATEGORIES.map((cat) => (
-              <SelectItem key={cat} value={cat}>
-                {cat}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
