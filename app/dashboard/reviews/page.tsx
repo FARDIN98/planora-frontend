@@ -205,7 +205,7 @@ export default function MyReviewsPage() {
               {updateReview.isPending && (
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
               )}
-              Save Changes
+              {updateReview.isPending ? "Saving..." : "Save Changes"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -216,18 +216,25 @@ export default function MyReviewsPage() {
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="w-[calc(100%-2rem)] sm:max-w-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Review</AlertDialogTitle>
+            <AlertDialogTitle>Delete review?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete your review. This action cannot be
-              undone.
+              This action cannot be undone. Your review will be permanently
+              removed.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>
-              Delete Review
+            <AlertDialogAction
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={deleteReview.isPending}
+            >
+              {deleteReview.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              {deleteReview.isPending ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

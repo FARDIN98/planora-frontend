@@ -27,6 +27,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StarRating } from "@/components/events/star-rating";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import dynamic from "next/dynamic";
 
 const ManageParticipantsModal = dynamic(
@@ -44,17 +45,6 @@ const InviteUserDialog = dynamic(
     })),
   { ssr: false }
 );
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import {
   Dialog,
   DialogContent,
@@ -342,14 +332,16 @@ export function EventDetailsClient({ eventId }: { eventId: string }) {
           onClick={handleAction}
           className="w-full sm:w-auto min-h-11"
         >
-          {joinEvent.isPending ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Processing...
-            </>
-          ) : (
-            actionState.label
+          {joinEvent.isPending && (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           )}
+          {joinEvent.isPending
+            ? actionState.action === "join"
+              ? "Joining..."
+              : actionState.action === "request"
+                ? "Requesting..."
+                : "Processing..."
+            : actionState.label}
         </Button>
 
         {isOwner && (
@@ -361,32 +353,19 @@ export function EventDetailsClient({ eventId }: { eventId: string }) {
               </Button>
             </Link>
 
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
+            <ConfirmDialog
+              trigger={
                 <Button variant="destructive" size="sm" className="w-full sm:w-auto min-h-11">
                   <Trash2 className="h-4 w-4 mr-1" />
                   Delete
                 </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete Event</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will permanently delete &quot;{event.title}&quot; and
-                    all associated registrations. This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    variant="destructive"
-                    onClick={handleDeleteEvent}
-                  >
-                    Delete Event
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+              }
+              title={`Delete "${event.title}"?`}
+              description="This action cannot be undone. The event and all its registrations will be permanently removed."
+              confirmText="Delete"
+              onConfirm={handleDeleteEvent}
+              isLoading={deleteEvent.isPending}
+            />
 
             <Button
               variant="outline"
@@ -444,7 +423,7 @@ export function EventDetailsClient({ eventId }: { eventId: string }) {
                   {createReview.isPending && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
-                  Submit Review
+                  {createReview.isPending ? "Submitting..." : "Submit Review"}
                 </Button>
               </form>
             </CardContent>
@@ -510,35 +489,18 @@ export function EventDetailsClient({ eventId }: { eventId: string }) {
                             <Pencil className="h-4 w-4" />
                           </Button>
 
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
+                          <ConfirmDialog
+                            trigger={
                               <Button variant="ghost" size="sm">
                                 <Trash2 className="h-4 w-4" />
                               </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                  Delete Review
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  This will permanently delete your review. This
-                                  action cannot be undone.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  variant="destructive"
-                                  onClick={() =>
-                                    deleteReview.mutate(review.id)
-                                  }
-                                >
-                                  Delete Review
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
+                            }
+                            title="Delete review?"
+                            description="This action cannot be undone. Your review will be permanently removed."
+                            confirmText="Delete"
+                            onConfirm={() => deleteReview.mutate(review.id)}
+                            isLoading={deleteReview.isPending}
+                          />
                         </div>
                       )}
                     </div>
@@ -589,7 +551,7 @@ export function EventDetailsClient({ eventId }: { eventId: string }) {
               {updateReview.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              Save Changes
+              {updateReview.isPending ? "Saving..." : "Save Changes"}
             </Button>
           </form>
         </DialogContent>
