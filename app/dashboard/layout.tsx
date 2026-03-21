@@ -7,6 +7,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import { PageTransition } from "@/components/layout/page-transition";
 import { Loader2 } from "lucide-react";
 
 export default function DashboardLayout({
@@ -41,7 +42,9 @@ export default function DashboardLayout({
         <DashboardSidebar />
         <div className="flex-1 flex flex-col">
           <DashboardHeader />
-          <main className="flex-1 p-6">{children}</main>
+          <PageTransition>
+            <main className="flex-1 p-6">{children}</main>
+          </PageTransition>
         </div>
       </SidebarProvider>
     </TooltipProvider>

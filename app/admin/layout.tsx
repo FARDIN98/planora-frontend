@@ -6,6 +6,7 @@ import { useSession } from "@/lib/auth-client";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { PageTransition } from "@/components/layout/page-transition";
 import { Badge } from "@/components/ui/badge";
 import { CalendarDays, Loader2 } from "lucide-react";
 
@@ -51,7 +52,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </Badge>
             </div>
           </header>
-          <main className="flex-1 p-6">{children}</main>
+          <PageTransition>
+            <main className="flex-1 p-6">{children}</main>
+          </PageTransition>
         </div>
       </SidebarProvider>
     </TooltipProvider>
