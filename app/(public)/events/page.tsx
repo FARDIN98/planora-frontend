@@ -18,6 +18,7 @@ import {
   PaginationEllipsis,
 } from "@/components/ui/pagination";
 import { EventCard } from "@/components/events/event-card";
+import { StaggeredGrid, StaggeredItem } from "@/components/shared/staggered-grid";
 import { useEvents } from "@/hooks/use-events";
 
 type EventCardEvent = {
@@ -229,11 +230,13 @@ function EventsDiscoveryContent() {
           ))}
         </div>
       ) : events.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+        <StaggeredGrid className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
           {events.map((event) => (
-            <EventCard key={event.id} event={event} />
+            <StaggeredItem key={event.id}>
+              <EventCard event={event} />
+            </StaggeredItem>
           ))}
-        </div>
+        </StaggeredGrid>
       ) : (
         <div className="mt-6">
           <EmptyState
