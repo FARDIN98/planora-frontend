@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, Mail } from "lucide-react";
+import { Trash2, Mail, Users } from "lucide-react";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -94,8 +95,12 @@ export default function AdminUsersPage() {
               ))
             ) : users.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                  No users have registered yet.
+                <TableCell colSpan={5} className="p-0">
+                  <EmptyState
+                    icon={Users}
+                    heading="No users"
+                    body="There are no registered users yet."
+                  />
                 </TableCell>
               </TableRow>
             ) : (
@@ -132,14 +137,26 @@ export default function AdminUsersPage() {
       <div className="mt-6 md:hidden space-y-3">
         {isLoading ? (
           Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-24 w-full rounded-xl" />
+            <Card key={i} className="p-4">
+              <div className="flex items-start justify-between gap-2">
+                <div className="space-y-2 flex-1">
+                  <Skeleton className="h-4 w-[50%]" />
+                  <Skeleton className="h-3 w-[60%]" />
+                  <div className="flex items-center gap-2 pt-1">
+                    <Skeleton className="h-5 w-12 rounded-full" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                </div>
+                <Skeleton className="h-10 w-10 rounded-md shrink-0" />
+              </div>
+            </Card>
           ))
         ) : users.length === 0 ? (
-          <Card>
-            <CardContent className="py-8 text-center text-muted-foreground">
-              No users have registered yet.
-            </CardContent>
-          </Card>
+          <EmptyState
+            icon={Users}
+            heading="No users"
+            body="There are no registered users yet."
+          />
         ) : (
           users.map((user) => (
             <Card key={user.id} className="p-4">

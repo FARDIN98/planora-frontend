@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Search, Trash2, CalendarDays } from "lucide-react";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -122,8 +123,12 @@ export default function AdminEventsPage() {
               ))
             ) : events.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                  No events have been created yet.
+                <TableCell colSpan={5} className="p-0">
+                  <EmptyState
+                    icon={CalendarDays}
+                    heading="No events"
+                    body="There are no events on the platform yet."
+                  />
                 </TableCell>
               </TableRow>
             ) : (
@@ -163,14 +168,27 @@ export default function AdminEventsPage() {
       <div className="mt-6 md:hidden space-y-3">
         {isLoading ? (
           Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-28 w-full rounded-xl" />
+            <Card key={i} className="p-4">
+              <div className="flex items-start justify-between gap-2">
+                <div className="space-y-2 flex-1">
+                  <Skeleton className="h-4 w-[60%]" />
+                  <Skeleton className="h-3 w-[40%]" />
+                  <Skeleton className="h-3 w-[30%]" />
+                  <div className="flex gap-1.5 pt-1">
+                    <Skeleton className="h-5 w-14 rounded-full" />
+                    <Skeleton className="h-5 w-12 rounded-full" />
+                  </div>
+                </div>
+                <Skeleton className="h-10 w-10 rounded-md shrink-0" />
+              </div>
+            </Card>
           ))
         ) : events.length === 0 ? (
-          <Card>
-            <CardContent className="py-8 text-center text-muted-foreground">
-              No events have been created yet.
-            </CardContent>
-          </Card>
+          <EmptyState
+            icon={CalendarDays}
+            heading="No events"
+            body="There are no events on the platform yet."
+          />
         ) : (
           events.map((event) => (
             <Card key={event.id} className="p-4">
