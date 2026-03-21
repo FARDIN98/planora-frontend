@@ -53,7 +53,7 @@ export default function RegisterPage() {
           setError("Something went wrong. Please try again later.");
         }
       } else {
-        router.push("/");
+        router.push("/dashboard");
       }
     } catch {
       setError("Something went wrong. Please check your connection and try again.");
@@ -231,7 +231,7 @@ export default function RegisterPage() {
               setIsGoogleLoading(true);
               setError(null);
               try {
-                await signIn.social({ provider: "google", callbackURL: window.location.origin + "/" });
+                await signIn.social({ provider: "google", callbackURL: window.location.origin + "/dashboard" });
               } catch {
                 setError("Google sign-up failed. Please try again.");
                 setIsGoogleLoading(false);

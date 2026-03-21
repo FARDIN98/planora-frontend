@@ -45,7 +45,7 @@ export default function LoginPage() {
       if (result.error) {
         setError("Invalid email or password. Please try again.");
       } else {
-        router.push("/");
+        router.push("/dashboard");
       }
     } catch {
       setError("Something went wrong. Please check your connection and try again.");
@@ -198,7 +198,7 @@ export default function LoginPage() {
               setIsGoogleLoading(true);
               setError(null);
               try {
-                await signIn.social({ provider: "google", callbackURL: window.location.origin + "/" });
+                await signIn.social({ provider: "google", callbackURL: window.location.origin + "/dashboard" });
               } catch {
                 setError("Google sign-in failed. Please try again.");
                 setIsGoogleLoading(false);
