@@ -65,7 +65,7 @@ export default function RegisterPage() {
   return (
     <div className="flex min-h-screen">
       {/* Left brand panel */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-orange-950 via-rose-950 to-amber-950">
+      <div className="hidden md:flex md:w-1/2 relative overflow-hidden bg-gradient-to-br from-orange-950 via-rose-950 to-amber-950">
         <div className="absolute inset-0">
           <div className="absolute top-20 left-20 h-72 w-72 rounded-full bg-orange-500/15 blur-3xl" />
           <div className="absolute bottom-32 right-16 h-96 w-96 rounded-full bg-amber-500/10 blur-3xl" />
@@ -113,10 +113,10 @@ export default function RegisterPage() {
       </div>
 
       {/* Right form panel */}
-      <div className="flex w-full lg:w-1/2 items-center justify-center px-6 sm:px-12 py-12 bg-background">
+      <div className="flex w-full md:w-1/2 items-center justify-center px-6 sm:px-12 py-12 bg-background">
         <div className="w-full max-w-[420px] space-y-8">
           {/* Mobile logo */}
-          <div className="flex items-center gap-3 lg:hidden">
+          <div className="flex items-center gap-3 md:hidden">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
               <CalendarDays className="h-4 w-4 text-primary-foreground" />
             </div>

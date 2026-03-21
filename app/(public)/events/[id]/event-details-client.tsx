@@ -172,7 +172,7 @@ export function EventDetailsClient({ eventId }: { eventId: string }) {
   // Loading state
   if (eventLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-8 py-8 space-y-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         <Skeleton className="h-9 w-2/3" />
         <div className="flex gap-4">
           <Skeleton className="h-5 w-32" />
@@ -190,7 +190,7 @@ export function EventDetailsClient({ eventId }: { eventId: string }) {
   // Error / Not found state
   if (eventError || !event) {
     return (
-      <div className="max-w-7xl mx-auto px-8 py-16 text-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
         <h1 className="text-3xl font-semibold tracking-tight">
           Event not found
         </h1>
@@ -279,7 +279,7 @@ export function EventDetailsClient({ eventId }: { eventId: string }) {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header Section */}
       <h1 className="text-3xl font-semibold tracking-tight">{event.title}</h1>
 
@@ -315,11 +315,12 @@ export function EventDetailsClient({ eventId }: { eventId: string }) {
       </p>
 
       {/* Action Buttons */}
-      <div className="flex gap-3 mt-6">
+      <div className="flex flex-col sm:flex-row gap-2 mt-6">
         <Button
           variant={actionState.variant}
           disabled={actionState.disabled || joinEvent.isPending}
           onClick={handleAction}
+          className="w-full sm:w-auto min-h-11"
         >
           {joinEvent.isPending ? (
             <>
@@ -334,7 +335,7 @@ export function EventDetailsClient({ eventId }: { eventId: string }) {
         {isOwner && (
           <>
             <Link href={`/dashboard/events/${event.id}/edit`}>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="w-full sm:w-auto min-h-11">
                 <Pencil className="h-4 w-4 mr-1" />
                 Edit
               </Button>
@@ -342,7 +343,7 @@ export function EventDetailsClient({ eventId }: { eventId: string }) {
 
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="sm">
+                <Button variant="destructive" size="sm" className="w-full sm:w-auto min-h-11">
                   <Trash2 className="h-4 w-4 mr-1" />
                   Delete
                 </Button>
@@ -370,6 +371,7 @@ export function EventDetailsClient({ eventId }: { eventId: string }) {
             <Button
               variant="outline"
               size="sm"
+              className="w-full sm:w-auto min-h-11"
               onClick={() => setInviteOpen(true)}
             >
               <UserPlus className="h-4 w-4 mr-1" />
@@ -539,7 +541,7 @@ export function EventDetailsClient({ eventId }: { eventId: string }) {
           if (!open) setEditingReview(null);
         }}
       >
-        <DialogContent className="max-w-sm">
+        <DialogContent className="w-[calc(100%-2rem)] sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>Edit Review</DialogTitle>
           </DialogHeader>
