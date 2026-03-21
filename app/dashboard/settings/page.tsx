@@ -54,14 +54,14 @@ export default function SettingsPage() {
     }
     setIsUpdating(true);
     try {
-      const result = await apiFetch<{ user: { id: string; name: string; email: string; role: string }; token: string }>(
+      const result = await apiFetch<{ user: { id: string; name: string; email: string; role: string }; accessToken: string }>(
         "/api/v1/auth/me",
         {
           method: "PUT",
           body: JSON.stringify({ name }),
         }
       );
-      setToken(result.token); // Re-issue JWT with updated name (per D-14)
+      setToken(result.accessToken); // Re-issue JWT with updated name
       toast.success("Profile updated");
     } catch (err: any) {
       toast.error(err?.message || "Something went wrong. Please try again.");

@@ -55,7 +55,7 @@ export default function LoginPage() {
       if (!json.success) {
         setError(json.error?.message || "Invalid email or password. Please try again.");
       } else {
-        login(json.data.token);
+        login(json.data.accessToken);
         const isAdmin = json.data.user.role === "admin";
         window.location.href = isAdmin ? "/admin" : "/dashboard";
       }

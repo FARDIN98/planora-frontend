@@ -69,7 +69,7 @@ export default function RegisterPage() {
           setError(json.error?.message || "Something went wrong. Please try again later.");
         }
       } else {
-        login(json.data.token);
+        login(json.data.accessToken);
         router.push("/dashboard");
       }
     } catch {
