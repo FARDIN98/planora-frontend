@@ -70,11 +70,16 @@ export function useMyEvents(params?: { page?: number; limit?: number }) {
 export function useCreateEvent() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: Record<string, unknown>) =>
-      apiFetch<unknown>("/api/v1/events", {
+    mutationFn: (data: Record<string, unknown>) => {
+      const payload = { ...data };
+      if (typeof payload.date === "string" && !payload.date.includes("T")) {
+        payload.date = new Date(payload.date).toISOString();
+      }
+      return apiFetch<unknown>("/api/v1/events", {
         method: "POST",
-        body: JSON.stringify(data),
-      }),
+        body: JSON.stringify(payload),
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: eventKeys.all });
       toast.success("Event created successfully");
@@ -88,11 +93,16 @@ export function useCreateEvent() {
 export function useUpdateEvent() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, ...data }: { id: string } & Record<string, unknown>) =>
-      apiFetch<unknown>(`/api/v1/events/${id}`, {
+    mutationFn: ({ id, ...data }: { id: string } & Record<string, unknown>) => {
+      const payload = { ...data };
+      if (typeof payload.date === "string" && !payload.date.includes("T")) {
+        payload.date = new Date(payload.date).toISOString();
+      }
+      return apiFetch<unknown>(`/api/v1/events/${id}`, {
         method: "PUT",
-        body: JSON.stringify(data),
-      }),
+        body: JSON.stringify(payload),
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: eventKeys.all });
       toast.success("Event updated successfully");
