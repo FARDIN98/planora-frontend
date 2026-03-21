@@ -58,7 +58,7 @@ export default function LoginPage() {
         setError("Invalid email or password. Please try again.");
       } else {
         const isAdmin = result.data?.user?.role === "admin";
-        router.push(isAdmin ? "/admin" : "/dashboard");
+        window.location.href = isAdmin ? "/admin" : "/dashboard";
       }
     } catch {
       setError("Something went wrong. Please check your connection and try again.");
