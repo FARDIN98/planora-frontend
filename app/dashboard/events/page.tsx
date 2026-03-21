@@ -4,7 +4,15 @@ import { useState } from "react";
 import Link from "next/link";
 import { Plus, MoreVertical, Pencil, Trash2, CalendarDays, Users } from "lucide-react";
 import { useMyEvents, useDeleteEvent } from "@/hooks/use-events";
-import { ManageParticipantsModal } from "@/components/events/manage-participants-modal";
+import dynamic from "next/dynamic";
+
+const ManageParticipantsModal = dynamic(
+  () =>
+    import("@/components/events/manage-participants-modal").then((mod) => ({
+      default: mod.ManageParticipantsModal,
+    })),
+  { ssr: false }
+);
 import { Button } from "@/components/ui/button";
 import {
   Card,

@@ -27,8 +27,23 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StarRating } from "@/components/events/star-rating";
-import { ManageParticipantsModal } from "@/components/events/manage-participants-modal";
-import { InviteUserDialog } from "@/components/events/invite-user-dialog";
+import dynamic from "next/dynamic";
+
+const ManageParticipantsModal = dynamic(
+  () =>
+    import("@/components/events/manage-participants-modal").then((mod) => ({
+      default: mod.ManageParticipantsModal,
+    })),
+  { ssr: false }
+);
+
+const InviteUserDialog = dynamic(
+  () =>
+    import("@/components/events/invite-user-dialog").then((mod) => ({
+      default: mod.InviteUserDialog,
+    })),
+  { ssr: false }
+);
 import {
   AlertDialog,
   AlertDialogAction,

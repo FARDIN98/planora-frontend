@@ -1,9 +1,32 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEvent, useUpdateEvent } from "@/hooks/use-events";
-import { EventForm, type EventFormData } from "@/components/events/event-form";
+import type { EventFormData } from "@/components/events/event-form";
 import { Skeleton } from "@/components/ui/skeleton";
+
+const EventForm = dynamic(
+  () =>
+    import("@/components/events/event-form").then((mod) => ({
+      default: mod.EventForm,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="space-y-4">
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-24 w-full" />
+        <div className="grid grid-cols-2 gap-4">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-11 w-full" />
+      </div>
+    ),
+  }
+);
 
 interface EditEventClientProps {
   eventId: string;
