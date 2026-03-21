@@ -8,13 +8,13 @@ const quickLinks = [
 
 export function Footer() {
   return (
-    <footer className="bg-foreground text-background">
+    <footer className="border-t bg-muted/50 text-foreground">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-col items-center text-center md:flex-row md:items-start md:text-left gap-8">
           {/* Brand */}
           <div className="flex-1">
             <h2 className="text-xl font-semibold">Planora</h2>
-            <p className="text-sm opacity-80 mt-2">
+            <p className="text-sm text-muted-foreground mt-2">
               Discover, join, and manage events seamlessly.
             </p>
           </div>
@@ -29,7 +29,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm opacity-80 hover:opacity-100 transition-opacity"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -40,7 +40,7 @@ export function Footer() {
         </div>
 
         {/* Copyright */}
-        <div className="border-t border-background/20 mt-8 pt-6 text-sm opacity-60 text-center">
+        <div className="border-t border-border mt-8 pt-6 text-sm text-muted-foreground text-center">
           2026 Planora. All rights reserved.
         </div>
       </div>
