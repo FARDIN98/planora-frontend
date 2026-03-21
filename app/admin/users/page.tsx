@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -68,7 +69,8 @@ export default function AdminUsersPage() {
     <div>
       <h1 className="text-3xl font-semibold tracking-tight">Users</h1>
 
-      <div className="mt-6">
+      {/* Desktop Table */}
+      <div className="mt-6 hidden md:block">
         <Table>
           <TableHeader>
             <TableRow>
@@ -112,7 +114,7 @@ export default function AdminUsersPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="text-destructive hover:text-destructive"
+                        className="text-destructive hover:text-destructive min-h-11 min-w-11"
                         onClick={() => setDeletingUser(user)}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -124,6 +126,53 @@ export default function AdminUsersPage() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile Card Layout */}
+      <div className="mt-6 md:hidden space-y-3">
+        {isLoading ? (
+          Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-24 w-full rounded-xl" />
+          ))
+        ) : users.length === 0 ? (
+          <Card>
+            <CardContent className="py-8 text-center text-muted-foreground">
+              No users have registered yet.
+            </CardContent>
+          </Card>
+        ) : (
+          users.map((user) => (
+            <Card key={user.id} className="p-4">
+              <div className="flex items-start justify-between gap-2">
+                <div className="space-y-1 min-w-0">
+                  <p className="font-medium truncate">{user.name}</p>
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <Mail className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">{user.email}</span>
+                  </div>
+                  <div className="flex items-center gap-2 pt-1">
+                    <Badge variant={user.role === "admin" ? "destructive" : "secondary"}>
+                      {user.role === "admin" ? "Admin" : "User"}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      Joined {new Date(user.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+                {user.role !== "admin" && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive hover:text-destructive min-h-11 min-w-11 shrink-0"
+                    onClick={() => setDeletingUser(user)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </Card>
+          ))
+        )}
       </div>
 
       {totalPages > 1 && (

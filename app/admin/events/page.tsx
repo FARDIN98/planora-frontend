@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Trash2 } from "lucide-react";
+import { Search, Trash2, CalendarDays } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -96,7 +97,8 @@ export default function AdminEventsPage() {
         />
       </div>
 
-      <div className="mt-6">
+      {/* Desktop Table */}
+      <div className="mt-6 hidden md:block">
         <Table>
           <TableHeader>
             <TableRow>
@@ -144,7 +146,7 @@ export default function AdminEventsPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-destructive hover:text-destructive"
+                      className="text-destructive hover:text-destructive min-h-11 min-w-11"
                       onClick={() => setDeletingEvent(event)}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -155,6 +157,54 @@ export default function AdminEventsPage() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile Card Layout */}
+      <div className="mt-6 md:hidden space-y-3">
+        {isLoading ? (
+          Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-28 w-full rounded-xl" />
+          ))
+        ) : events.length === 0 ? (
+          <Card>
+            <CardContent className="py-8 text-center text-muted-foreground">
+              No events have been created yet.
+            </CardContent>
+          </Card>
+        ) : (
+          events.map((event) => (
+            <Card key={event.id} className="p-4">
+              <div className="flex items-start justify-between gap-2">
+                <div className="space-y-1 min-w-0">
+                  <p className="font-medium truncate">{event.title}</p>
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <CalendarDays className="h-3.5 w-3.5 shrink-0" />
+                    <span>{new Date(event.date).toLocaleDateString()}</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    by {event.organizer?.name ?? "Unknown"}
+                  </p>
+                  <div className="flex items-center gap-1.5 pt-1">
+                    <Badge variant={event.visibility === "PUBLIC" ? "secondary" : "outline"}>
+                      {event.visibility}
+                    </Badge>
+                    <Badge variant={event.fee > 0 ? "default" : "secondary"}>
+                      {event.fee > 0 ? `$${event.fee}` : "FREE"}
+                    </Badge>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-destructive hover:text-destructive min-h-11 min-w-11 shrink-0"
+                  onClick={() => setDeletingEvent(event)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </Card>
+          ))
+        )}
       </div>
 
       {totalPages > 1 && (
