@@ -57,7 +57,8 @@ export default function LoginPage() {
       if (result.error) {
         setError("Invalid email or password. Please try again.");
       } else {
-        router.push("/dashboard");
+        const isAdmin = result.data?.user?.role === "admin";
+        router.push(isAdmin ? "/admin" : "/dashboard");
       }
     } catch {
       setError("Something went wrong. Please check your connection and try again.");
@@ -235,6 +236,7 @@ export default function LoginPage() {
               setError(null);
               try {
                 await signIn.social({ provider: "google", callbackURL: window.location.origin + "/dashboard" });
+                // Note: Google OAuth callback always goes to /dashboard — role-based redirect handled by dashboard layout
               } catch {
                 setError("Google sign-in failed. Please try again.");
                 setIsGoogleLoading(false);
