@@ -83,7 +83,7 @@ export function InviteUserDialog({
             {sendInvitation.isPending && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
-            Send Invitation
+            {sendInvitation.isPending ? "Sending..." : "Send Invitation"}
           </Button>
         </form>
       </DialogContent>

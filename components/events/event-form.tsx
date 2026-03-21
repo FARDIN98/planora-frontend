@@ -195,7 +195,13 @@ export function EventForm({
 
       <Button type="submit" disabled={isSubmitting} className="w-full">
         {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        {mode === "create" ? "Create Event" : "Save Changes"}
+        {isSubmitting
+          ? mode === "create"
+            ? "Creating..."
+            : "Saving..."
+          : mode === "create"
+            ? "Create Event"
+            : "Save Changes"}
       </Button>
     </form>
   );

@@ -121,21 +121,27 @@ export default function InvitationsPage() {
                   <Button
                     onClick={() => handleRespond(invitation.id, "accept")}
                     disabled={processingId === invitation.id}
+                    className="min-h-11"
                   >
-                    {processingId === invitation.id ? (
+                    {processingId === invitation.id && (
                       <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : null}
-                    Accept
+                    )}
+                    {processingId === invitation.id
+                      ? "Accepting..."
+                      : "Accept"}
                   </Button>
                 ) : (
                   <Button
                     onClick={() => handleRespond(invitation.id, "accept")}
                     disabled={processingId === invitation.id}
+                    className="min-h-11"
                   >
-                    {processingId === invitation.id ? (
+                    {processingId === invitation.id && (
                       <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : null}
-                    Pay & Accept
+                    )}
+                    {processingId === invitation.id
+                      ? "Processing..."
+                      : "Pay & Accept"}
                   </Button>
                 )}
                 <Button
