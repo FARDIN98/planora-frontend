@@ -6,6 +6,7 @@ import { LayoutDashboard, Calendar, Users, ArrowLeft, LogOut, CalendarDays } fro
 import { signOut } from "@/lib/auth-client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import {
   Sidebar,
   SidebarContent,
@@ -43,12 +44,15 @@ export function AdminSidebar() {
     <div className="[&_[data-active=true]]:bg-destructive/10 [&_[data-active=true]]:text-destructive">
       <Sidebar>
         <SidebarHeader className="px-4 py-4">
-          <div className="flex items-center gap-2">
-            <CalendarDays className="h-5 w-5" />
-            <span className="font-semibold">Planora</span>
-            <Badge variant="destructive" className="text-xs">
-              Admin
-            </Badge>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <CalendarDays className="h-5 w-5" />
+              <span className="font-semibold">Planora</span>
+              <Badge variant="destructive" className="text-xs">
+                Admin
+              </Badge>
+            </div>
+            <ThemeToggle />
           </div>
         </SidebarHeader>
 

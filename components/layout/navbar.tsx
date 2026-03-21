@@ -6,6 +6,8 @@ import { CalendarDays, Menu, LogOut, User } from "lucide-react";
 import { useSession, signOut } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -71,6 +73,8 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
+
+          <ThemeToggle />
 
           {session ? (
             <>
@@ -167,7 +171,7 @@ export function Navbar() {
                     </SheetClose>
                     <button
                       onClick={handleLogout}
-                      className="text-sm text-muted-foreground hover:text-foreground text-left flex items-center gap-2"
+                      className="text-sm text-muted-foreground hover:text-foreground text-left flex items-center gap-2 min-h-11"
                     >
                       <LogOut className="h-4 w-4" />
                       Logout
@@ -187,6 +191,9 @@ export function Navbar() {
                     </SheetClose>
                   </>
                 )}
+
+                <Separator className="my-2" />
+                <ThemeToggle />
               </div>
             </SheetContent>
           </Sheet>

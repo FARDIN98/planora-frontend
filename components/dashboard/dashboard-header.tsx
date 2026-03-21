@@ -5,6 +5,7 @@ import { CalendarDays } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export function DashboardHeader() {
   const { data: session } = useSession();
@@ -21,6 +22,7 @@ export function DashboardHeader() {
         </Link>
       </div>
       <div className="flex items-center gap-3">
+        <ThemeToggle />
         <span className="text-sm hidden sm:block">
           {session?.user?.name}
         </span>
