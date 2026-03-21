@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Mail, Lock, CalendarDays, ArrowRight } from "lucide-react";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -56,6 +57,7 @@ export default function LoginPage() {
         setError(json.error?.message || "Invalid email or password. Please try again.");
       } else {
         login(json.data.accessToken);
+        toast.success("Login successful!");
         const isAdmin = json.data.user.role === "admin";
         window.location.href = isAdmin ? "/admin" : "/dashboard";
       }

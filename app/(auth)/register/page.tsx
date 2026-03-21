@@ -3,16 +3,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Mail, Lock, User, CalendarDays, ArrowRight } from "lucide-react";
+import { toast } from "sonner";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { login } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -69,8 +68,8 @@ export default function RegisterPage() {
           setError(json.error?.message || "Something went wrong. Please try again later.");
         }
       } else {
-        login(json.data.accessToken);
-        router.push("/dashboard");
+        toast.success("Account created successfully! Please login.");
+        router.push("/login");
       }
     } catch {
       setError("Something went wrong. Please check your connection and try again.");
