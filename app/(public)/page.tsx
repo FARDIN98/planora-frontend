@@ -10,8 +10,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { EventCard } from "@/components/events/event-card";
+import { EventCardSkeleton } from "@/components/events/event-card-skeleton";
 import { useEvents } from "@/hooks/use-events";
 
 const categories = [
@@ -40,25 +40,6 @@ const categories = [
     type: "PAID",
   },
 ] as const;
-
-function EventCardSkeleton() {
-  return (
-    <Card className="h-full">
-      <div className="p-6 space-y-3">
-        <Skeleton className="h-5 w-3/4" />
-        <Skeleton className="h-4 w-1/2" />
-      </div>
-      <div className="px-6 pb-4 space-y-2">
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-2/3" />
-      </div>
-      <div className="px-6 pb-6 flex justify-between">
-        <Skeleton className="h-4 w-1/3" />
-        <Skeleton className="h-4 w-1/4" />
-      </div>
-    </Card>
-  );
-}
 
 export default function HomePage() {
   const heroQuery = useEvents({ limit: 1 });
@@ -113,7 +94,7 @@ export default function HomePage() {
             </div>
             <div className="w-full lg:w-1/2">
               {heroQuery.isLoading ? (
-                <Skeleton className="h-64 w-full rounded-lg" />
+                <EventCardSkeleton />
               ) : heroEvent ? (
                 <EventCard event={heroEvent} />
               ) : (

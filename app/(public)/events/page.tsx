@@ -3,9 +3,10 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Search, X } from "lucide-react";
+import { EventCardSkeleton } from "@/components/events/event-card-skeleton";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Pagination,
@@ -32,25 +33,6 @@ type EventCardEvent = {
   _count?: { registrations: number };
   averageRating?: number;
 };
-
-function EventCardSkeleton() {
-  return (
-    <Card className="h-full">
-      <div className="p-6 space-y-3">
-        <Skeleton className="h-5 w-3/4" />
-        <Skeleton className="h-4 w-1/2" />
-      </div>
-      <div className="px-6 pb-4 space-y-2">
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-2/3" />
-      </div>
-      <div className="px-6 pb-6 flex justify-between">
-        <Skeleton className="h-4 w-1/3" />
-        <Skeleton className="h-4 w-1/4" />
-      </div>
-    </Card>
-  );
-}
 
 const LIMIT = 12;
 
@@ -253,21 +235,15 @@ function EventsDiscoveryContent() {
           ))}
         </div>
       ) : (
-        <Card className="mt-6">
-          <CardContent className="py-12 text-center">
-            <h3 className="text-xl font-semibold">No events found</h3>
-            <p className="text-muted-foreground mt-2">
-              Try adjusting your search or filters.
-            </p>
-            <Button
-              variant="outline"
-              className="mt-4"
-              onClick={handleClearFilters}
-            >
-              Clear Filters
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="mt-6">
+          <EmptyState
+            icon={Search}
+            heading="No events found"
+            body="No events match your filters. Try adjusting your search or clearing filters."
+            ctaLabel="Clear Filters"
+            onCtaClick={handleClearFilters}
+          />
+        </div>
       )}
 
       {/* Pagination */}
