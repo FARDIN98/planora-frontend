@@ -56,7 +56,7 @@ export function Navbar() {
   const userInitial = session?.user?.name?.charAt(0).toUpperCase() || "U";
 
   return (
-    <nav className="border-b bg-background">
+    <nav className="border-b bg-background" aria-label="Main navigation">
       <div className="max-w-7xl mx-auto px-8 py-4 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
@@ -88,7 +88,7 @@ export function Navbar() {
               )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="focus:outline-none">
+                  <button className="focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-full" aria-label="User menu">
                     <Avatar>
                       <AvatarFallback>{userInitial}</AvatarFallback>
                     </Avatar>
