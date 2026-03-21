@@ -67,7 +67,7 @@ export default function MyEventsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <header className="flex items-center justify-between">
         <h1 className="text-3xl font-semibold tracking-tight">My Events</h1>
         <Link href="/dashboard/events/create">
           <Button>
@@ -75,7 +75,7 @@ export default function MyEventsPage() {
             Create Event
           </Button>
         </Link>
-      </div>
+      </header>
 
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
