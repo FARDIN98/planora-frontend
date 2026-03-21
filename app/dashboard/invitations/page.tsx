@@ -73,9 +73,9 @@ export default function InvitationsPage() {
           {invitations.map((invitation) => (
             <Card
               key={invitation.id}
-              className="flex items-center justify-between p-4"
+              className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 gap-4"
             >
-              <div className="space-y-1">
+              <div className="space-y-1 min-w-0">
                 <Link
                   href={`/events/${invitation.event.id}`}
                   className="font-semibold hover:underline"
@@ -111,7 +111,7 @@ export default function InvitationsPage() {
                 </div>
               </div>
 
-              <div className="flex gap-2 shrink-0 ml-4">
+              <div className="flex flex-row gap-2 shrink-0">
                 {invitation.event.type === "FREE" ? (
                   <Button
                     onClick={() => handleRespond(invitation.id, "accept")}
@@ -135,6 +135,7 @@ export default function InvitationsPage() {
                 )}
                 <Button
                   variant="outline"
+                  className="min-h-11"
                   onClick={() => handleRespond(invitation.id, "decline")}
                   disabled={processingId === invitation.id}
                 >

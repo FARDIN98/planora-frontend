@@ -76,7 +76,7 @@ export default function MyEventsPage() {
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
           {[1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-48 w-full rounded-xl" />
           ))}
@@ -97,7 +97,7 @@ export default function MyEventsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
           {events.map((event) => (
             <Card key={event.id}>
               <CardHeader className="flex flex-row items-start justify-between space-y-0">
