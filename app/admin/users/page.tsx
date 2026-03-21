@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, Mail, Users } from "lucide-react";
+import { Trash2, Mail, Users, Loader2 } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -227,11 +227,11 @@ export default function AdminUsersPage() {
       )}
 
       <AlertDialog open={!!deletingUser} onOpenChange={(open) => !open && setDeletingUser(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="w-[calc(100%-2rem)] sm:max-w-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete User</AlertDialogTitle>
+            <AlertDialogTitle>Delete this user?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the account for {deletingUser?.name} ({deletingUser?.email}). All their data will be removed. This action cannot be undone.
+              This will permanently remove this user account and all their data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -241,7 +241,10 @@ export default function AdminUsersPage() {
               onClick={handleDelete}
               disabled={adminRemoveUser.isPending}
             >
-              {adminRemoveUser.isPending ? "Deleting..." : "Delete User"}
+              {adminRemoveUser.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              {adminRemoveUser.isPending ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

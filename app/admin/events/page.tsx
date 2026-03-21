@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Trash2, CalendarDays } from "lucide-react";
+import { Search, Trash2, CalendarDays, Loader2 } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -260,11 +260,13 @@ export default function AdminEventsPage() {
       )}
 
       <AlertDialog open={!!deletingEvent} onOpenChange={(open) => !open && setDeletingEvent(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="w-[calc(100%-2rem)] sm:max-w-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Event</AlertDialogTitle>
+            <AlertDialogTitle>
+              Delete &quot;{deletingEvent?.title}&quot;?
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete &quot;{deletingEvent?.title}&quot; and all associated data. This action cannot be undone.
+              This will permanently remove this event and all associated data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -274,7 +276,10 @@ export default function AdminEventsPage() {
               onClick={handleDelete}
               disabled={adminDeleteEvent.isPending}
             >
-              {adminDeleteEvent.isPending ? "Deleting..." : "Delete Event"}
+              {adminDeleteEvent.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              {adminDeleteEvent.isPending ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

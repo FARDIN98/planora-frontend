@@ -15,17 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 
 interface ManageParticipantsModalProps {
   eventId: string;
@@ -159,38 +149,28 @@ export function ManageParticipantsModal({
                             {reg.user.email}
                           </p>
                         </div>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
+                        <ConfirmDialog
+                          trigger={
                             <Button
                               size="sm"
                               variant="destructive"
                               disabled={processingId === reg.id}
                             >
-                              <Ban className="h-4 w-4" />
+                              {processingId === reg.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Ban className="h-4 w-4" />
+                              )}
                             </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>
-                                Ban Participant
-                              </AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This will ban {reg.user.name} from this event.
-                                They will no longer be able to access the event.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() =>
-                                  handleStatusChange(reg.id, "BANNED")
-                                }
-                              >
-                                Ban Participant
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                          }
+                          title={`Ban ${reg.user.name}?`}
+                          description="This user will be removed from the event and cannot rejoin."
+                          confirmText="Ban"
+                          onConfirm={() =>
+                            handleStatusChange(reg.id, "BANNED")
+                          }
+                          isLoading={processingId === reg.id}
+                        />
                       </div>
                     ))}
                   </div>
