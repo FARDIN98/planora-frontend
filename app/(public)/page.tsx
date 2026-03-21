@@ -80,38 +80,38 @@ export default function HomePage() {
   const gridEvents = (gridQuery.data?.events ?? []) as EventCardEvent[];
 
   return (
-    <>
+    <main id="main-content">
       {/* Hero Section */}
-      <section className="bg-background py-16">
+      <section className="bg-background py-12 sm:py-16 lg:py-20">
         <div
-          className="max-w-7xl mx-auto px-8"
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
           style={{
             backgroundImage:
               "radial-gradient(circle, oklch(0.87 0 0) 1px, transparent 1px)",
             backgroundSize: "24px 24px",
           }}
         >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <div>
+          <div className="flex flex-col lg:flex-row gap-8 items-center">
+            <div className="w-full lg:w-1/2">
               <h1 className="text-3xl font-semibold tracking-tight leading-tight">
                 Plan events that matter
               </h1>
               <p className="text-muted-foreground mt-4 text-base">
                 Create, discover, and join events seamlessly.
               </p>
-              <div className="mt-8 flex gap-4">
+              <div className="mt-8 flex flex-col sm:flex-row gap-4">
                 <Link href="/events">
-                  <Button>
+                  <Button className="w-full sm:w-auto min-h-11">
                     Browse Events
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
                 <Link href="/dashboard/events/create">
-                  <Button variant="outline">Create Event</Button>
+                  <Button variant="outline" className="w-full sm:w-auto min-h-11">Create Event</Button>
                 </Link>
               </div>
             </div>
-            <div>
+            <div className="w-full lg:w-1/2">
               {heroQuery.isLoading ? (
                 <Skeleton className="h-64 w-full rounded-lg" />
               ) : heroEvent ? (
@@ -131,18 +131,18 @@ export default function HomePage() {
       </section>
 
       {/* Events Grid Section */}
-      <section className="bg-muted py-12">
-        <div className="max-w-7xl mx-auto px-8">
+      <section className="bg-muted py-12 sm:py-16 lg:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-xl font-semibold mb-6">Upcoming Events</h2>
           {gridQuery.isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {Array.from({ length: 9 }).map((_, i) => (
                 <EventCardSkeleton key={i} />
               ))}
             </div>
           ) : gridEvents.length > 0 ? (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {gridEvents.map((event) => (
                   <EventCard key={event.id} event={event} />
                 ))}
@@ -161,10 +161,10 @@ export default function HomePage() {
       </section>
 
       {/* Categories Section */}
-      <section className="bg-background py-12">
-        <div className="max-w-7xl mx-auto px-8">
+      <section className="bg-background py-12 sm:py-16 lg:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-xl font-semibold mb-6">Browse by Category</h2>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {categories.map((cat, index) => {
               const Icon = cat.icon;
               return (
@@ -189,8 +189,8 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-muted py-12">
-        <div className="max-w-7xl mx-auto px-8">
+      <section className="bg-muted py-12 sm:py-16 lg:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div>
               <h2 className="text-xl font-semibold">
@@ -201,18 +201,18 @@ export default function HomePage() {
                 experience, Planora makes it simple.
               </p>
             </div>
-            <div className="flex gap-4 lg:justify-end">
+            <div className="flex flex-col sm:flex-row gap-4 lg:justify-end">
               <Link href="/dashboard/events/create">
-                <Button>Create an Event</Button>
+                <Button className="w-full sm:w-auto min-h-11">Create an Event</Button>
               </Link>
               <Link href="/events">
-                <Button variant="outline">Browse Events</Button>
+                <Button variant="outline" className="w-full sm:w-auto min-h-11">Browse Events</Button>
               </Link>
             </div>
           </div>
         </div>
       </section>
-    </>
+    </main>
   );
 }
 

@@ -57,9 +57,9 @@ const LIMIT = 12;
 export default function EventsDiscoveryPage() {
   return (
     <Suspense fallback={
-      <div className="max-w-7xl mx-auto px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="h-10 w-48 bg-muted animate-pulse rounded-md" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
           {Array.from({ length: LIMIT }).map((_, i) => (
             <EventCardSkeleton key={i} />
           ))}
@@ -172,7 +172,7 @@ function EventsDiscoveryContent() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-3xl font-semibold tracking-tight">
         Discover Events
       </h1>
@@ -201,38 +201,38 @@ function EventsDiscoveryContent() {
       </div>
 
       {/* Filter Chips */}
-      <div className="flex flex-wrap gap-2 mt-4">
+      <div className="flex overflow-x-auto lg:flex-wrap gap-2 mt-4">
         <Button
           variant={isAllActive ? "default" : "secondary"}
-          size="sm"
+          size="sm" className="min-h-11 min-w-11"
           onClick={handleAllClick}
         >
           All
         </Button>
         <Button
           variant={visibility === "PUBLIC" ? "default" : "secondary"}
-          size="sm"
+          size="sm" className="min-h-11 min-w-11"
           onClick={() => toggleVisibility("PUBLIC")}
         >
           Public
         </Button>
         <Button
           variant={visibility === "PRIVATE" ? "default" : "secondary"}
-          size="sm"
+          size="sm" className="min-h-11 min-w-11"
           onClick={() => toggleVisibility("PRIVATE")}
         >
           Private
         </Button>
         <Button
           variant={type === "FREE" ? "default" : "secondary"}
-          size="sm"
+          size="sm" className="min-h-11 min-w-11"
           onClick={() => toggleType("FREE")}
         >
           Free
         </Button>
         <Button
           variant={type === "PAID" ? "default" : "secondary"}
-          size="sm"
+          size="sm" className="min-h-11 min-w-11"
           onClick={() => toggleType("PAID")}
         >
           Paid
@@ -241,13 +241,13 @@ function EventsDiscoveryContent() {
 
       {/* Results Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
           {Array.from({ length: LIMIT }).map((_, i) => (
             <EventCardSkeleton key={i} />
           ))}
         </div>
       ) : events.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
           {events.map((event) => (
             <EventCard key={event.id} event={event} />
           ))}

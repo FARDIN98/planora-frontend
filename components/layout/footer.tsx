@@ -9,10 +9,10 @@ const quickLinks = [
 export function Footer() {
   return (
     <footer className="bg-foreground text-background">
-      <div className="max-w-7xl mx-auto px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="flex flex-col items-center text-center md:flex-row md:items-start md:text-left gap-8">
           {/* Brand */}
-          <div>
+          <div className="flex-1">
             <h2 className="text-xl font-semibold">Planora</h2>
             <p className="text-sm opacity-80 mt-2">
               Discover, join, and manage events seamlessly.
@@ -20,7 +20,7 @@ export function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div>
+          <div className="flex-1">
             <h3 className="text-sm font-semibold uppercase tracking-wider">
               Quick Links
             </h3>

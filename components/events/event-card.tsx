@@ -36,7 +36,7 @@ export function EventCard({ event }: EventCardProps) {
 
   return (
     <Link href={`/events/${event.id}`}>
-      <Card className="h-full hover:shadow-md transition-shadow">
+      <Card className="h-full transition-shadow duration-200 hover:shadow-lg hover:scale-[1.02]">
         <CardHeader>
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="font-semibold line-clamp-2">
