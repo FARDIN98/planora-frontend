@@ -77,12 +77,12 @@ export default function LoginPage() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-64 w-64 rounded-full bg-rose-500/10 blur-3xl" />
         </div>
         <div className="relative z-10 flex flex-col justify-between p-12 text-white">
-          <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500/20 backdrop-blur-sm border border-orange-400/20">
               <CalendarDays className="h-5 w-5 text-orange-300" />
             </div>
             <span className="text-xl font-semibold tracking-tight">Planora</span>
-          </div>
+          </Link>
           <div className="space-y-6">
             <h2 className="text-4xl font-bold leading-tight tracking-tight">
               Discover events.<br />
@@ -117,12 +117,12 @@ export default function LoginPage() {
       <div className="flex w-full md:w-1/2 items-center justify-center px-6 sm:px-12 py-12 bg-background">
         <div className="w-full max-w-[420px] space-y-8">
           {/* Mobile logo */}
-          <div className="flex items-center gap-3 md:hidden">
+          <Link href="/" className="flex items-center gap-3 md:hidden hover:opacity-80 transition-opacity">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
               <CalendarDays className="h-4 w-4 text-primary-foreground" />
             </div>
             <span className="text-lg font-semibold tracking-tight">Planora</span>
-          </div>
+          </Link>
 
           <div className="space-y-2">
             <h1 className="text-3xl font-bold tracking-tight">Welcome back</h1>
