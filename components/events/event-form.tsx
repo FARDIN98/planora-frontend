@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,6 +49,7 @@ export function EventForm({
   );
   const [fee, setFee] = useState(String(initialData?.fee ?? "0"));
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (initialData) {
@@ -62,27 +63,111 @@ export function EventForm({
     }
   }, [initialData]);
 
-  const validate = () => {
+  const validateField = useCallback(
+    (field: string, value: string): string | undefined => {
+      switch (field) {
+        case "title":
+          if (!value.trim()) return "Title is required";
+          if (value.trim().length < 3)
+            return "Title must be at least 3 characters";
+          if (value.trim().length > 100)
+            return "Title must be under 100 characters";
+          return undefined;
+        case "date":
+          if (!value) return "Date is required";
+          if (mode === "create") {
+            const selected = new Date(value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (selected < today) return "Event date must be in the future";
+          }
+          return undefined;
+        case "time":
+          if (!value) return "Time is required";
+          return undefined;
+        case "venue":
+          if (!value.trim()) return "Venue is required";
+          if (value.trim().length < 3)
+            return "Venue must be at least 3 characters";
+          return undefined;
+        case "fee": {
+          const num = Number(value);
+          if (value !== "" && (isNaN(num) || num < 0))
+            return "Fee must be a valid number";
+          return undefined;
+        }
+        default:
+          return undefined;
+      }
+    },
+    [mode]
+  );
+
+  const handleFieldChange = (field: string, value: string) => {
+    // Update value
+    switch (field) {
+      case "title":
+        setTitle(value);
+        break;
+      case "date":
+        setDate(value);
+        break;
+      case "time":
+        setTime(value);
+        break;
+      case "venue":
+        setVenue(value);
+        break;
+      case "fee":
+        setFee(value);
+        break;
+    }
+    // Validate on change if field was touched
+    if (touched[field]) {
+      const error = validateField(field, value);
+      setErrors((prev) => {
+        const next = { ...prev };
+        if (error) next[field] = error;
+        else delete next[field];
+        return next;
+      });
+    }
+  };
+
+  const handleBlur = (field: string, value: string) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    const error = validateField(field, value);
+    setErrors((prev) => {
+      const next = { ...prev };
+      if (error) next[field] = error;
+      else delete next[field];
+      return next;
+    });
+  };
+
+  const validateAll = (): boolean => {
+    const fields = { title, date, time, venue, fee };
     const newErrors: Record<string, string> = {};
-    if (!title || title.length < 3 || title.length > 100) {
-      newErrors.title = "Title must be between 3 and 100 characters";
-    }
-    if (!date) {
-      newErrors.date = "Date is required";
-    }
-    if (!time) {
-      newErrors.time = "Time is required";
-    }
-    if (!venue) {
-      newErrors.venue = "Venue is required";
+    for (const [field, value] of Object.entries(fields)) {
+      const error = validateField(field, value);
+      if (error) newErrors[field] = error;
     }
     setErrors(newErrors);
+    setTouched({ title: true, date: true, time: true, venue: true, fee: true });
     return Object.keys(newErrors).length === 0;
   };
 
+  const isFormValid =
+    title.trim().length >= 3 &&
+    date !== "" &&
+    time !== "" &&
+    venue.trim().length >= 3 &&
+    !isNaN(Number(fee)) &&
+    Number(fee) >= 0;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validateAll()) return;
     onSubmit({
       title,
       description,
@@ -101,12 +186,17 @@ export function EventForm({
         <Input
           id="title"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => handleFieldChange("title", e.target.value)}
+          onBlur={() => handleBlur("title", title)}
           placeholder="Event title"
-          required
+          aria-invalid={!!errors.title}
+          aria-describedby={errors.title ? "title-error" : undefined}
+          className={errors.title ? "border-destructive" : ""}
         />
         {errors.title && (
-          <p className="text-sm text-destructive">{errors.title}</p>
+          <p id="title-error" className="text-destructive text-sm mt-1" aria-live="polite">
+            {errors.title}
+          </p>
         )}
       </div>
 
@@ -128,11 +218,16 @@ export function EventForm({
             id="date"
             type="date"
             value={date}
-            onChange={(e) => setDate(e.target.value)}
-            required
+            onChange={(e) => handleFieldChange("date", e.target.value)}
+            onBlur={() => handleBlur("date", date)}
+            aria-invalid={!!errors.date}
+            aria-describedby={errors.date ? "date-error" : undefined}
+            className={errors.date ? "border-destructive" : ""}
           />
           {errors.date && (
-            <p className="text-sm text-destructive">{errors.date}</p>
+            <p id="date-error" className="text-destructive text-sm mt-1" aria-live="polite">
+              {errors.date}
+            </p>
           )}
         </div>
 
@@ -142,11 +237,16 @@ export function EventForm({
             id="time"
             type="time"
             value={time}
-            onChange={(e) => setTime(e.target.value)}
-            required
+            onChange={(e) => handleFieldChange("time", e.target.value)}
+            onBlur={() => handleBlur("time", time)}
+            aria-invalid={!!errors.time}
+            aria-describedby={errors.time ? "time-error" : undefined}
+            className={errors.time ? "border-destructive" : ""}
           />
           {errors.time && (
-            <p className="text-sm text-destructive">{errors.time}</p>
+            <p id="time-error" className="text-destructive text-sm mt-1" aria-live="polite">
+              {errors.time}
+            </p>
           )}
         </div>
       </div>
@@ -156,12 +256,17 @@ export function EventForm({
         <Input
           id="venue"
           value={venue}
-          onChange={(e) => setVenue(e.target.value)}
+          onChange={(e) => handleFieldChange("venue", e.target.value)}
+          onBlur={() => handleBlur("venue", venue)}
           placeholder="Event venue"
-          required
+          aria-invalid={!!errors.venue}
+          aria-describedby={errors.venue ? "venue-error" : undefined}
+          className={errors.venue ? "border-destructive" : ""}
         />
         {errors.venue && (
-          <p className="text-sm text-destructive">{errors.venue}</p>
+          <p id="venue-error" className="text-destructive text-sm mt-1" aria-live="polite">
+            {errors.venue}
+          </p>
         )}
       </div>
 
@@ -187,13 +292,26 @@ export function EventForm({
             min="0"
             step="0.01"
             value={fee}
-            onChange={(e) => setFee(e.target.value)}
+            onChange={(e) => handleFieldChange("fee", e.target.value)}
+            onBlur={() => handleBlur("fee", fee)}
             placeholder="0"
+            aria-invalid={!!errors.fee}
+            aria-describedby={errors.fee ? "fee-error" : undefined}
+            className={errors.fee ? "border-destructive" : ""}
           />
+          {errors.fee && (
+            <p id="fee-error" className="text-destructive text-sm mt-1" aria-live="polite">
+              {errors.fee}
+            </p>
+          )}
         </div>
       </div>
 
-      <Button type="submit" disabled={isSubmitting} className="w-full">
+      <Button
+        type="submit"
+        disabled={isSubmitting || !isFormValid}
+        className="w-full"
+      >
         {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         {isSubmitting
           ? mode === "create"

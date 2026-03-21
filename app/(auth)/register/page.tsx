@@ -21,13 +21,30 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
+  function validateField(field: "name" | "email" | "password", value: string): string | undefined {
+    if (field === "name") {
+      if (!value.trim()) return "Name is required";
+      if (value.trim().length < 2) return "Name must be at least 2 characters";
+    }
+    if (field === "email") {
+      if (!value.trim()) return "Email is required";
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "Please enter a valid email";
+    }
+    if (field === "password") {
+      if (!value) return "Password is required";
+      if (value.length < 8) return "Password must be at least 8 characters";
+    }
+    return undefined;
+  }
+
   function validateFields(): boolean {
     const errors: { name?: string; email?: string; password?: string } = {};
-    if (!name.trim()) errors.name = "Name is required";
-    if (!email.trim()) errors.email = "Email is required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = "Please enter a valid email address";
-    if (!password) errors.password = "Password is required";
-    else if (password.length < 8) errors.password = "Password must be at least 8 characters";
+    const nameErr = validateField("name", name);
+    if (nameErr) errors.name = nameErr;
+    const emailErr = validateField("email", email);
+    if (emailErr) errors.email = emailErr;
+    const passErr = validateField("password", password);
+    if (passErr) errors.password = passErr;
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   }
@@ -48,7 +65,7 @@ export default function RegisterPage() {
 
       if (result.error) {
         if (result.error.message?.toLowerCase().includes("already") || result.error.code === "USER_ALREADY_EXISTS") {
-          setError("An account with this email already exists. Please sign in instead.");
+          setFieldErrors((prev) => ({ ...prev, email: "An account with this email already exists" }));
         } else {
           setError("Something went wrong. Please try again later.");
         }
@@ -144,7 +161,19 @@ export default function RegisterPage() {
                   type="text"
                   placeholder="John Doe"
                   value={name}
-                  onChange={(e) => { setName(e.target.value); setFieldErrors((prev) => ({ ...prev, name: undefined })); }}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setName(val);
+                    setError(null);
+                    if (fieldErrors.name) {
+                      const err = validateField("name", val);
+                      setFieldErrors((prev) => ({ ...prev, name: err }));
+                    }
+                  }}
+                  onBlur={() => {
+                    const err = validateField("name", name);
+                    setFieldErrors((prev) => ({ ...prev, name: err }));
+                  }}
                   disabled={isLoading}
                   aria-invalid={!!fieldErrors.name}
                   aria-describedby={fieldErrors.name ? "name-error" : undefined}
@@ -165,7 +194,19 @@ export default function RegisterPage() {
                   type="email"
                   placeholder="name@example.com"
                   value={email}
-                  onChange={(e) => { setEmail(e.target.value); setFieldErrors((prev) => ({ ...prev, email: undefined })); }}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setEmail(val);
+                    setError(null);
+                    if (fieldErrors.email) {
+                      const err = validateField("email", val);
+                      setFieldErrors((prev) => ({ ...prev, email: err }));
+                    }
+                  }}
+                  onBlur={() => {
+                    const err = validateField("email", email);
+                    setFieldErrors((prev) => ({ ...prev, email: err }));
+                  }}
                   disabled={isLoading}
                   aria-invalid={!!fieldErrors.email}
                   aria-describedby={fieldErrors.email ? "email-error" : undefined}
@@ -186,7 +227,19 @@ export default function RegisterPage() {
                   type="password"
                   placeholder="Min. 8 characters"
                   value={password}
-                  onChange={(e) => { setPassword(e.target.value); setFieldErrors((prev) => ({ ...prev, password: undefined })); }}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setPassword(val);
+                    setError(null);
+                    if (fieldErrors.password) {
+                      const err = validateField("password", val);
+                      setFieldErrors((prev) => ({ ...prev, password: err }));
+                    }
+                  }}
+                  onBlur={() => {
+                    const err = validateField("password", password);
+                    setFieldErrors((prev) => ({ ...prev, password: err }));
+                  }}
                   disabled={isLoading}
                   aria-invalid={!!fieldErrors.password}
                   aria-describedby={fieldErrors.password ? "password-error" : undefined}

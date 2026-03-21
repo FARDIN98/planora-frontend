@@ -20,11 +20,23 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
+  function validateField(field: "email" | "password", value: string): string | undefined {
+    if (field === "email") {
+      if (!value.trim()) return "Email is required";
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "Please enter a valid email";
+    }
+    if (field === "password") {
+      if (!value) return "Password is required";
+    }
+    return undefined;
+  }
+
   function validateFields(): boolean {
     const errors: { email?: string; password?: string } = {};
-    if (!email.trim()) errors.email = "Email is required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = "Please enter a valid email address";
-    if (!password) errors.password = "Password is required";
+    const emailErr = validateField("email", email);
+    if (emailErr) errors.email = emailErr;
+    const passErr = validateField("password", password);
+    if (passErr) errors.password = passErr;
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   }
@@ -132,7 +144,19 @@ export default function LoginPage() {
                   type="email"
                   placeholder="name@example.com"
                   value={email}
-                  onChange={(e) => { setEmail(e.target.value); setFieldErrors((prev) => ({ ...prev, email: undefined })); }}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setEmail(val);
+                    setError(null);
+                    if (fieldErrors.email) {
+                      const err = validateField("email", val);
+                      setFieldErrors((prev) => ({ ...prev, email: err }));
+                    }
+                  }}
+                  onBlur={() => {
+                    const err = validateField("email", email);
+                    setFieldErrors((prev) => ({ ...prev, email: err }));
+                  }}
                   disabled={isLoading}
                   aria-invalid={!!fieldErrors.email}
                   aria-describedby={fieldErrors.email ? "email-error" : undefined}
@@ -153,7 +177,19 @@ export default function LoginPage() {
                   type="password"
                   placeholder="Enter your password"
                   value={password}
-                  onChange={(e) => { setPassword(e.target.value); setFieldErrors((prev) => ({ ...prev, password: undefined })); }}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setPassword(val);
+                    setError(null);
+                    if (fieldErrors.password) {
+                      const err = validateField("password", val);
+                      setFieldErrors((prev) => ({ ...prev, password: err }));
+                    }
+                  }}
+                  onBlur={() => {
+                    const err = validateField("password", password);
+                    setFieldErrors((prev) => ({ ...prev, password: err }));
+                  }}
                   disabled={isLoading}
                   aria-invalid={!!fieldErrors.password}
                   aria-describedby={fieldErrors.password ? "password-error" : undefined}

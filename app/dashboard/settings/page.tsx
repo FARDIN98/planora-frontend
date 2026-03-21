@@ -13,6 +13,8 @@ import { toast } from "sonner";
 export default function SettingsPage() {
   const { data: session, isPending: sessionLoading } = useSession();
   const [name, setName] = useState("");
+  const [nameError, setNameError] = useState<string | undefined>();
+  const [nameTouched, setNameTouched] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
@@ -21,7 +23,34 @@ export default function SettingsPage() {
     }
   }, [session?.user?.name]);
 
+  function validateName(value: string): string | undefined {
+    if (!value.trim()) return "Name is required";
+    if (value.trim().length < 2) return "Name must be at least 2 characters";
+    return undefined;
+  }
+
+  const handleNameChange = (value: string) => {
+    setName(value);
+    if (nameTouched) {
+      setNameError(validateName(value));
+    }
+  };
+
+  const handleNameBlur = () => {
+    setNameTouched(true);
+    setNameError(validateName(name));
+  };
+
+  const isUnchanged = name === (session?.user?.name ?? "");
+  const isFormValid = !validateName(name) && !isUnchanged;
+
   const handleSave = async () => {
+    const error = validateName(name);
+    if (error) {
+      setNameError(error);
+      setNameTouched(true);
+      return;
+    }
     setIsUpdating(true);
     try {
       const result = await authClient.updateUser({ name });
@@ -29,7 +58,6 @@ export default function SettingsPage() {
         toast.error(result.error.message || "Failed to update profile");
       } else {
         toast.success("Profile updated");
-        // Refetch session to update displayed user info
         await authClient.getSession();
       }
     } catch {
@@ -63,9 +91,18 @@ export default function SettingsPage() {
             <Input
               id="name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => handleNameChange(e.target.value)}
+              onBlur={handleNameBlur}
               placeholder="Your name"
+              aria-invalid={!!nameError}
+              aria-describedby={nameError ? "name-error" : undefined}
+              className={nameError ? "border-destructive" : ""}
             />
+            {nameError && (
+              <p id="name-error" className="text-destructive text-sm mt-1" aria-live="polite">
+                {nameError}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -84,7 +121,7 @@ export default function SettingsPage() {
 
           <Button
             onClick={handleSave}
-            disabled={isUpdating}
+            disabled={isUpdating || !isFormValid}
             className="w-full"
           >
             {isUpdating && (
