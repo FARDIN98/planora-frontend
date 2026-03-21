@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { EventCard } from "@/components/events/event-card";
 import { EventCardSkeleton } from "@/components/events/event-card-skeleton";
+import { AnimatedSection } from "@/components/shared/animated-section";
+import { StaggeredGrid, StaggeredItem } from "@/components/shared/staggered-grid";
 import { useEvents } from "@/hooks/use-events";
 
 const categories = [
@@ -63,6 +65,7 @@ export default function HomePage() {
   return (
     <main id="main-content">
       {/* Hero Section */}
+      <AnimatedSection>
       <section className="bg-background py-12 sm:py-16 lg:py-20">
         <div
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
@@ -110,8 +113,10 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      </AnimatedSection>
 
       {/* Events Grid Section */}
+      <AnimatedSection>
       <section className="bg-muted py-12 sm:py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-xl font-semibold mb-6">Upcoming Events</h2>
@@ -123,11 +128,13 @@ export default function HomePage() {
             </div>
           ) : gridEvents.length > 0 ? (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <StaggeredGrid className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {gridEvents.map((event) => (
-                  <EventCard key={event.id} event={event} />
+                  <StaggeredItem key={event.id}>
+                    <EventCard event={event} />
+                  </StaggeredItem>
                 ))}
-              </div>
+              </StaggeredGrid>
               <Link
                 href="/events"
                 className="text-primary hover:underline text-sm font-medium mt-6 inline-block"
@@ -140,8 +147,10 @@ export default function HomePage() {
           )}
         </div>
       </section>
+      </AnimatedSection>
 
       {/* Categories Section */}
+      <AnimatedSection>
       <section className="bg-background py-12 sm:py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-xl font-semibold mb-6">Browse by Category</h2>
@@ -168,8 +177,10 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      </AnimatedSection>
 
       {/* CTA Section */}
+      <AnimatedSection>
       <section className="bg-muted py-12 sm:py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
@@ -193,6 +204,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      </AnimatedSection>
     </main>
   );
 }
