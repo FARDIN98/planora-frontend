@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { CalendarDays, Menu, LogOut, User } from "lucide-react";
-import { useSession, signOut } from "@/lib/auth-client";
+import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -32,8 +32,7 @@ const publicLinks = [
 
 export function Navbar() {
   const pathname = usePathname();
-  const router = useRouter();
-  const { data: session } = useSession();
+  const { user, logout } = useAuth();
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -48,12 +47,11 @@ export function Navbar() {
         : "text-muted-foreground hover:text-foreground"
     );
 
-  const handleLogout = async () => {
-    await signOut();
-    router.push("/");
+  const handleLogout = () => {
+    logout();
   };
 
-  const userInitial = session?.user?.name?.charAt(0).toUpperCase() || "U";
+  const userInitial = user?.name?.charAt(0).toUpperCase() || "U";
 
   return (
     <nav className="border-b bg-background" aria-label="Main navigation">
@@ -76,12 +74,12 @@ export function Navbar() {
 
           <ThemeToggle />
 
-          {session ? (
+          {user ? (
             <>
               <Link href="/dashboard" className={linkClass("/dashboard")}>
                 Dashboard
               </Link>
-              {session.user.role === "admin" && (
+              {user.role === "admin" && (
                 <Link href="/admin" className={linkClass("/admin")}>
                   Admin
                 </Link>
@@ -150,14 +148,14 @@ export function Navbar() {
                   </SheetClose>
                 ))}
 
-                {session ? (
+                {user ? (
                   <>
                     <SheetClose asChild>
                       <Link href="/dashboard" className={linkClass("/dashboard")}>
                         Dashboard
                       </Link>
                     </SheetClose>
-                    {session.user.role === "admin" && (
+                    {user.role === "admin" && (
                       <SheetClose asChild>
                         <Link href="/admin" className={linkClass("/admin")}>
                           Admin

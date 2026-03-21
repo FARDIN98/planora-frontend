@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Calendar, Mail, MessageSquare, Settings, LogOut } from "lucide-react";
-import { signOut } from "@/lib/auth-client";
+import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -26,11 +26,10 @@ const navItems = [
 
 export function DashboardSidebar() {
   const pathname = usePathname();
-  const router = useRouter();
+  const { logout } = useAuth();
 
-  const handleLogout = async () => {
-    await signOut();
-    router.push("/");
+  const handleLogout = () => {
+    logout();
   };
 
   return (

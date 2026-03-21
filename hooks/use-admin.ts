@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { authClient } from "@/lib/auth-client";
 import { apiFetch } from "@/lib/api";
 import { toast } from "sonner";
 import { eventKeys } from "@/hooks/use-events";
@@ -9,33 +8,20 @@ import { eventKeys } from "@/hooks/use-events";
 export function useAdminUsers(params?: { limit?: number; offset?: number }) {
   return useQuery({
     queryKey: ["admin", "users", params],
-    queryFn: async () => {
-      const result = await authClient.admin.listUsers({
-        query: {
-          limit: params?.limit ?? 20,
-          offset: params?.offset ?? 0,
-          sortBy: "createdAt",
-          sortDirection: "desc",
-        },
-      });
-      if (result.error) {
-        throw new Error(result.error.message || "Failed to fetch users");
-      }
-      return result.data;
-    },
+    queryFn: () =>
+      apiFetch<{ users: any[]; total: number }>(
+        `/api/v1/admin/users?limit=${params?.limit ?? 20}&offset=${params?.offset ?? 0}`
+      ),
   });
 }
 
 export function useAdminRemoveUser() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (userId: string) => {
-      const result = await authClient.admin.removeUser({ userId });
-      if (result.error) {
-        throw new Error(result.error.message || "Failed to delete user");
-      }
-      return result.data;
-    },
+    mutationFn: (userId: string) =>
+      apiFetch<unknown>(`/api/v1/admin/users/${userId}`, {
+        method: "DELETE",
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       toast.success("User deleted");

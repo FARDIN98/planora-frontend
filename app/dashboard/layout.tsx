@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/lib/auth-client";
+import { useAuth } from "@/lib/auth";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
@@ -16,15 +16,15 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { data: session, isPending } = useSession();
+  const { user, isLoading } = useAuth();
 
   useEffect(() => {
-    if (!isPending && !session) {
+    if (!isLoading && !user) {
       router.replace("/login");
     }
-  }, [isPending, session, router]);
+  }, [isLoading, user, router]);
 
-  if (isPending) {
+  if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -32,7 +32,7 @@ export default function DashboardLayout({
     );
   }
 
-  if (!session) {
+  if (!user) {
     return null;
   }
 

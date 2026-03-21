@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { CalendarDays } from "lucide-react";
-import { useSession } from "@/lib/auth-client";
+import { useAuth } from "@/lib/auth";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export function DashboardHeader() {
-  const { data: session } = useSession();
+  const { user } = useAuth();
 
   return (
     <div className="flex items-center justify-between h-14 px-4 border-b bg-background">
@@ -24,11 +24,11 @@ export function DashboardHeader() {
       <div className="flex items-center gap-3">
         <ThemeToggle />
         <span className="text-sm hidden sm:block">
-          {session?.user?.name}
+          {user?.name}
         </span>
         <Avatar size="sm">
           <AvatarFallback>
-            {session?.user?.name?.charAt(0)?.toUpperCase() || "U"}
+            {user?.name?.charAt(0)?.toUpperCase() || "U"}
           </AvatarFallback>
         </Avatar>
       </div>

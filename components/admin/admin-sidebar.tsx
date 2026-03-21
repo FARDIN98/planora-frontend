@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { LayoutDashboard, Calendar, Users, ArrowLeft, LogOut, CalendarDays } from "lucide-react";
-import { signOut } from "@/lib/auth-client";
+import { useAuth } from "@/lib/auth";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import {
   Sidebar,
@@ -28,16 +27,15 @@ const navItems = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
-  const router = useRouter();
+  const { logout } = useAuth();
 
   const isActive = (href: string, exact: boolean) => {
     if (exact) return pathname === href;
     return pathname.startsWith(href);
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-    router.push("/login");
+  const handleSignOut = () => {
+    logout();
   };
 
   return (

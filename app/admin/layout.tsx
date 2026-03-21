@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/lib/auth-client";
+import { useAuth } from "@/lib/auth";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
@@ -12,17 +12,17 @@ import { CalendarDays, Loader2 } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { data: session, isPending } = useSession();
+  const { user, isLoading } = useAuth();
 
   useEffect(() => {
-    if (!isPending && !session) {
+    if (!isLoading && !user) {
       router.replace("/login");
-    } else if (!isPending && session && session.user.role !== "admin") {
+    } else if (!isLoading && user && user.role !== "admin") {
       router.replace("/dashboard");
     }
-  }, [isPending, session, router]);
+  }, [isLoading, user, router]);
 
-  if (isPending) {
+  if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="flex flex-col items-center gap-3">
@@ -33,7 +33,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  if (!session || session.user.role !== "admin") {
+  if (!user || user.role !== "admin") {
     return null;
   }
 

@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
-import { useSession, authClient } from "@/lib/auth-client";
+import { useAuth } from "@/lib/auth";
+import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,17 +12,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
 export default function SettingsPage() {
-  const { data: session, isPending: sessionLoading } = useSession();
+  const { user, isLoading: sessionLoading, setToken } = useAuth();
   const [name, setName] = useState("");
   const [nameError, setNameError] = useState<string | undefined>();
   const [nameTouched, setNameTouched] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
-    if (session?.user?.name) {
-      setName(session.user.name);
+    if (user?.name) {
+      setName(user.name);
     }
-  }, [session?.user?.name]);
+  }, [user?.name]);
 
   function validateName(value: string): string | undefined {
     if (!value.trim()) return "Name is required";
@@ -41,7 +42,7 @@ export default function SettingsPage() {
     setNameError(validateName(name));
   };
 
-  const isUnchanged = name === (session?.user?.name ?? "");
+  const isUnchanged = name === (user?.name ?? "");
   const isFormValid = !validateName(name) && !isUnchanged;
 
   const handleSave = async () => {
@@ -53,15 +54,17 @@ export default function SettingsPage() {
     }
     setIsUpdating(true);
     try {
-      const result = await authClient.updateUser({ name });
-      if (result.error) {
-        toast.error(result.error.message || "Failed to update profile");
-      } else {
-        toast.success("Profile updated");
-        await authClient.getSession();
-      }
-    } catch {
-      toast.error("Something went wrong. Please try again.");
+      const result = await apiFetch<{ user: { id: string; name: string; email: string; role: string }; token: string }>(
+        "/api/v1/auth/me",
+        {
+          method: "PUT",
+          body: JSON.stringify({ name }),
+        }
+      );
+      setToken(result.token); // Re-issue JWT with updated name (per D-14)
+      toast.success("Profile updated");
+    } catch (err: any) {
+      toast.error(err?.message || "Something went wrong. Please try again.");
     } finally {
       setIsUpdating(false);
     }
@@ -109,7 +112,7 @@ export default function SettingsPage() {
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
-              value={session?.user?.email ?? ""}
+              value={user?.email ?? ""}
               disabled
               readOnly
               className="bg-muted cursor-not-allowed"

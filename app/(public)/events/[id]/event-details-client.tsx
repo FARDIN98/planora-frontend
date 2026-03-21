@@ -20,7 +20,7 @@ import {
   useUpdateReview,
   useDeleteReview,
 } from "@/hooks/use-reviews";
-import { useSession } from "@/lib/auth-client";
+import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -80,12 +80,12 @@ interface Review {
 
 function getActionState(
   event: EventDetail,
-  session: { user: { id: string } } | null,
+  user: { id: string } | null,
   userRegistration?: { id: string; status: string } | null
 ) {
-  if (!session)
+  if (!user)
     return { label: "Login to Join", variant: "outline" as const, action: "login" };
-  if (event.organizerId === session.user.id)
+  if (event.organizerId === user.id)
     return {
       label: "Manage Event",
       variant: "outline" as const,
@@ -134,7 +134,7 @@ function getActionState(
 
 export function EventDetailsClient({ eventId }: { eventId: string }) {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { user } = useAuth();
   const {
     data: eventData,
     isLoading: eventLoading,
@@ -226,20 +226,18 @@ export function EventDetailsClient({ eventId }: { eventId: string }) {
 
   const actionState = getActionState(
     event,
-    session as { user: { id: string } } | null,
+    user,
     event.userRegistration
   );
 
-  const isOwner =
-    session?.user && event.organizerId === (session.user as { id: string }).id;
+  const isOwner = user && event.organizerId === user.id;
 
   const hasReviewed = reviews.some(
-    (r) =>
-      session?.user && r.user.id === (session.user as { id: string }).id
+    (r) => user && r.user.id === user.id
   );
 
   const canReview =
-    session?.user &&
+    user &&
     event.userRegistration?.status === "APPROVED" &&
     !hasReviewed;
 
@@ -440,9 +438,7 @@ export function EventDetailsClient({ eventId }: { eventId: string }) {
         ) : reviews.length > 0 ? (
           <div className="mt-4 space-y-4">
             {reviews.map((review) => {
-              const isOwnReview =
-                session?.user &&
-                review.user.id === (session.user as { id: string }).id;
+              const isOwnReview = user && review.user.id === user.id;
               const reviewDate = new Date(review.createdAt).toLocaleDateString(
                 "en-US",
                 {
