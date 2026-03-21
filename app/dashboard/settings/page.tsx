@@ -7,10 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
 export default function SettingsPage() {
-  const { data: session } = useSession();
+  const { data: session, isPending: sessionLoading } = useSession();
   const [name, setName] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -42,6 +43,19 @@ export default function SettingsPage() {
     <div>
       <h1 className="text-3xl font-semibold tracking-tight">Settings</h1>
 
+      {sessionLoading ? (
+        <Card className="max-w-lg mt-6">
+          <CardContent className="space-y-6 pt-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="space-y-2">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            ))}
+            <Skeleton className="h-10 w-full" />
+          </CardContent>
+        </Card>
+      ) : (
       <Card className="max-w-lg mt-6">
         <CardContent className="space-y-6 pt-6">
           <div className="space-y-2">
@@ -80,6 +94,7 @@ export default function SettingsPage() {
           </Button>
         </CardContent>
       </Card>
+      )}
     </div>
   );
 }

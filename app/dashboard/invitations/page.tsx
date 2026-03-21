@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { CalendarDays, Loader2 } from "lucide-react";
+import { CalendarDays, Loader2, Mail } from "lucide-react";
+import { EmptyState } from "@/components/shared/empty-state";
 import {
   useMyInvitations,
   useRespondInvitation,
@@ -54,20 +55,24 @@ export default function InvitationsPage() {
       {isLoading ? (
         <div className="space-y-4 mt-6">
           {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-20 w-full rounded-xl" />
+            <div key={i} className="flex items-center gap-4 p-4 rounded-xl border">
+              <Skeleton className="h-10 w-10 rounded-full" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-[50%]" />
+                <Skeleton className="h-3 w-[30%]" />
+              </div>
+              <Skeleton className="h-9 w-20" />
+            </div>
           ))}
         </div>
       ) : invitations.length === 0 ? (
-        <Card className="mt-6 p-8 text-center">
-          <CardContent className="p-0">
-            <h2 className="text-xl font-semibold">
-              No pending invitations
-            </h2>
-            <p className="text-sm text-muted-foreground mt-2">
-              When someone invites you to an event, it will appear here.
-            </p>
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={Mail}
+          heading="No pending invitations"
+          body="You don't have any invitations right now. Check back later or browse events to join."
+          ctaLabel="Browse Events"
+          ctaHref="/events"
+        />
       ) : (
         <div className="space-y-4 mt-6">
           {invitations.map((invitation) => (

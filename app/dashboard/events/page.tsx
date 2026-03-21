@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { Plus, MoreVertical, Pencil, Trash2, CalendarDays, Users } from "lucide-react";
 import { useMyEvents, useDeleteEvent } from "@/hooks/use-events";
+import { EventCardSkeleton } from "@/components/events/event-card-skeleton";
+import { EmptyState } from "@/components/shared/empty-state";
 import dynamic from "next/dynamic";
 
 const ManageParticipantsModal = dynamic(
@@ -77,25 +79,18 @@ export default function MyEventsPage() {
 
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-48 w-full rounded-xl" />
+          {[1, 2, 3, 4].map((i) => (
+            <EventCardSkeleton key={i} />
           ))}
         </div>
       ) : events.length === 0 ? (
-        <Card className="mt-6 p-8 text-center">
-          <CardContent className="p-0">
-            <h2 className="text-xl font-semibold">No events yet</h2>
-            <p className="text-sm text-muted-foreground mt-2">
-              Create your first event and start planning.
-            </p>
-            <Link href="/dashboard/events/create" className="mt-4 inline-block">
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Create Event
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={CalendarDays}
+          heading="No events yet"
+          body="You haven't created any events. Get started by creating your first one."
+          ctaLabel="Create Event"
+          ctaHref="/dashboard/events/create"
+        />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
           {events.map((event) => (

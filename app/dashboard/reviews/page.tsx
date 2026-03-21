@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Pencil, Trash2, Loader2 } from "lucide-react";
+import { Pencil, Trash2, Loader2, Star } from "lucide-react";
+import { EmptyState } from "@/components/shared/empty-state";
 import {
   useMyReviews,
   useUpdateReview,
@@ -94,21 +95,32 @@ export default function MyReviewsPage() {
       {isLoading ? (
         <div className="space-y-4 mt-6">
           {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-28 w-full rounded-xl" />
+            <Card key={i} className="p-4">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2 flex-1">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="h-4 w-[40%]" />
+                    <Skeleton className="h-4 w-20" />
+                  </div>
+                  <Skeleton className="h-3 w-24" />
+                  <Skeleton className="h-4 w-[70%]" />
+                </div>
+                <div className="flex gap-1">
+                  <Skeleton className="h-8 w-8" />
+                  <Skeleton className="h-8 w-8" />
+                </div>
+              </div>
+            </Card>
           ))}
         </div>
       ) : reviews.length === 0 ? (
-        <Card className="mt-6 p-8 text-center">
-          <CardContent className="p-0">
-            <h2 className="text-xl font-semibold">No reviews yet</h2>
-            <p className="text-sm text-muted-foreground mt-2">
-              After attending an event, you can share your experience here.
-            </p>
-            <Link href="/events" className="mt-4 inline-block">
-              <Button variant="outline">Browse Events</Button>
-            </Link>
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={Star}
+          heading="No reviews yet"
+          body="You haven't written any reviews. Join events and share your experience."
+          ctaLabel="Browse Events"
+          ctaHref="/events"
+        />
       ) : (
         <div className="space-y-4 mt-6">
           {reviews.map((review) => (
