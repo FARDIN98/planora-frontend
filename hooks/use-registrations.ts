@@ -23,6 +23,7 @@ interface RegistrationListResponse {
 export function useEventRegistrations(
   eventId: string,
   params?: { page?: number; limit?: number },
+  enabled: boolean = true,
 ) {
   const query = new URLSearchParams();
   if (params?.page) query.set("page", String(params.page));
@@ -35,7 +36,7 @@ export function useEventRegistrations(
       apiFetch<RegistrationListResponse>(
         `/api/v1/events/${eventId}/registrations${qs ? `?${qs}` : ""}`,
       ),
-    enabled: !!eventId,
+    enabled: !!eventId && enabled,
   });
 }
 
@@ -57,14 +58,24 @@ export function useMyRegistrations(params?: {
   });
 }
 
+interface JoinResponse {
+  registration?: unknown;
+  checkoutUrl?: string;
+  requiresPayment?: boolean;
+}
+
 export function useJoinEvent() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ eventId }: { eventId: string }) =>
-      apiFetch<unknown>(`/api/v1/events/${eventId}/registrations`, {
+      apiFetch<JoinResponse>(`/api/v1/events/${eventId}/registrations`, {
         method: "POST",
       }),
-    onSuccess: () => {
+    onSuccess: (data) => {
+      if (data.requiresPayment && data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+        return;
+      }
       queryClient.invalidateQueries({ queryKey: registrationKeys.all });
       queryClient.invalidateQueries({ queryKey: eventKeys.all });
       toast.success("Successfully joined event");

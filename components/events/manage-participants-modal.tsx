@@ -38,7 +38,7 @@ export function ManageParticipantsModal({
   open,
   onOpenChange,
 }: ManageParticipantsModalProps) {
-  const { data, isLoading } = useEventRegistrations(eventId);
+  const { data, isLoading } = useEventRegistrations(eventId, undefined, open);
   const updateRegistration = useUpdateRegistration();
   const [processingId, setProcessingId] = useState<string | null>(null);
 

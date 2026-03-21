@@ -168,6 +168,7 @@ export function EventForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateAll()) return;
+    const feeNum = Number(fee) || 0;
     onSubmit({
       title,
       description,
@@ -175,8 +176,9 @@ export function EventForm({
       time,
       venue,
       visibility,
-      fee: Number(fee) || 0,
-    });
+      type: feeNum > 0 ? "PAID" : "FREE",
+      fee: feeNum,
+    } as EventFormData);
   };
 
   return (
@@ -285,7 +287,7 @@ export function EventForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="fee">Registration Fee ($)</Label>
+          <Label htmlFor="fee">Registration Fee (BDT)</Label>
           <Input
             id="fee"
             type="number"

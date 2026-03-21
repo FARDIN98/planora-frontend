@@ -111,7 +111,7 @@ export default function InvitationsPage() {
                   >
                     {invitation.event.type === "FREE"
                       ? "FREE"
-                      : `$${invitation.event.fee}`}
+                      : `৳${invitation.event.fee}`}
                   </Badge>
                 </div>
               </div>

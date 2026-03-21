@@ -143,7 +143,7 @@ export default function AdminEventsPage() {
                         {event.visibility}
                       </Badge>
                       <Badge variant={event.fee > 0 ? "default" : "secondary"}>
-                        {event.fee > 0 ? `$${event.fee}` : "FREE"}
+                        {event.fee > 0 ? `৳${event.fee}` : "FREE"}
                       </Badge>
                     </div>
                   </TableCell>
@@ -207,7 +207,7 @@ export default function AdminEventsPage() {
                       {event.visibility}
                     </Badge>
                     <Badge variant={event.fee > 0 ? "default" : "secondary"}>
-                      {event.fee > 0 ? `$${event.fee}` : "FREE"}
+                      {event.fee > 0 ? `৳${event.fee}` : "FREE"}
                     </Badge>
                   </div>
                 </div>

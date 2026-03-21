@@ -46,7 +46,7 @@ export function EventCard({ event }: EventCardProps) {
               variant={event.type === "FREE" ? "secondary" : "default"}
               className="shrink-0"
             >
-              {event.type === "FREE" ? "FREE" : `$${event.fee}`}
+              {event.type === "FREE" ? "FREE" : `৳${event.fee}`}
             </Badge>
           </div>
         </CardHeader>

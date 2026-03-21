@@ -113,7 +113,7 @@ function getActionState(
     return { label: "Join Event", variant: "default" as const, action: "join" };
   if (event.visibility === "PUBLIC" && event.type === "PAID")
     return {
-      label: `Pay $${event.fee} & Join`,
+      label: `Pay ৳${event.fee} & Join`,
       variant: "default" as const,
       action: "pay-join",
     };
@@ -311,7 +311,7 @@ export function EventDetailsClient({ eventId }: { eventId: string }) {
           </span>
         )}
         <Badge variant={event.type === "FREE" ? "secondary" : "default"}>
-          {event.type === "FREE" ? "FREE" : `$${event.fee}`}
+          {event.type === "FREE" ? "FREE" : `৳${event.fee}`}
         </Badge>
         <Badge variant="outline">
           {event.visibility}
@@ -554,11 +554,13 @@ export function EventDetailsClient({ eventId }: { eventId: string }) {
       </Dialog>
 
       {/* Manage Participants Modal */}
-      <ManageParticipantsModal
-        eventId={event.id}
-        open={manageOpen}
-        onOpenChange={setManageOpen}
-      />
+      {isOwner && (
+        <ManageParticipantsModal
+          eventId={event.id}
+          open={manageOpen}
+          onOpenChange={setManageOpen}
+        />
+      )}
 
       {/* Invite User Dialog */}
       <InviteUserDialog
