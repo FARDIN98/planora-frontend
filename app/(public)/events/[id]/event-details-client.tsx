@@ -302,7 +302,7 @@ export function EventDetailsClient({ eventId }: { eventId: string }) {
         </span>
         <span className="flex items-center gap-1">
           <Users className="h-4 w-4" />
-          {event._count.registrations} participants
+          {event._count?.registrations ?? 0} participants
         </span>
         {event.averageRating > 0 && (
           <span className="flex items-center gap-1">
