@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Trash2, CalendarDays, Loader2 } from "lucide-react";
+import { Search, Trash2, CalendarDays, Loader2, Star } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -34,8 +34,13 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useEvents } from "@/hooks/use-events";
-import { useAdminDeleteEvent } from "@/hooks/use-admin";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useAdminEvents, useAdminDeleteEvent, useAdminSetFeatured, useAdminUnsetFeatured } from "@/hooks/use-admin";
 
 interface Event {
   id: string;
@@ -43,6 +48,7 @@ interface Event {
   date: string;
   visibility: string;
   fee: number;
+  isFeatured?: boolean;
   organizer: { name: string };
 }
 
@@ -62,12 +68,14 @@ export default function AdminEventsPage() {
   const debouncedSearch = useDebounce(search, 300);
   const limit = 10;
 
-  const { data, isLoading } = useEvents({
+  const { data, isLoading } = useAdminEvents({
     page,
     limit,
     search: debouncedSearch || undefined,
   });
   const adminDeleteEvent = useAdminDeleteEvent();
+  const setFeatured = useAdminSetFeatured();
+  const unsetFeatured = useAdminUnsetFeatured();
 
   const events = (data?.events ?? []) as Event[];
   const totalPages = data?.totalPages ?? 1;
@@ -107,7 +115,7 @@ export default function AdminEventsPage() {
               <TableHead>Date</TableHead>
               <TableHead>Owner</TableHead>
               <TableHead>Type</TableHead>
-              <TableHead className="w-[80px]">Actions</TableHead>
+              <TableHead className="w-[120px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -148,14 +156,38 @@ export default function AdminEventsPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive hover:text-destructive min-h-11 min-w-11"
-                      onClick={() => setDeletingEvent(event)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className={`min-h-11 min-w-11 ${event.isFeatured ? "text-amber-500 hover:text-amber-600" : "text-muted-foreground hover:text-amber-500"}`}
+                              onClick={() =>
+                                event.isFeatured
+                                  ? unsetFeatured.mutate(event.id)
+                                  : setFeatured.mutate(event.id)
+                              }
+                              disabled={setFeatured.isPending || unsetFeatured.isPending}
+                            >
+                              <Star className={`h-4 w-4 ${event.isFeatured ? "fill-amber-500" : ""}`} />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {event.isFeatured ? "Remove from featured" : "Set as featured"}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive min-h-11 min-w-11"
+                        onClick={() => setDeletingEvent(event)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -211,14 +243,29 @@ export default function AdminEventsPage() {
                     </Badge>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-destructive hover:text-destructive min-h-11 min-w-11 shrink-0"
-                  onClick={() => setDeletingEvent(event)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <div className="flex flex-col gap-1 shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={`min-h-11 min-w-11 ${event.isFeatured ? "text-amber-500 hover:text-amber-600" : "text-muted-foreground hover:text-amber-500"}`}
+                    onClick={() =>
+                      event.isFeatured
+                        ? unsetFeatured.mutate(event.id)
+                        : setFeatured.mutate(event.id)
+                    }
+                    disabled={setFeatured.isPending || unsetFeatured.isPending}
+                  >
+                    <Star className={`h-4 w-4 ${event.isFeatured ? "fill-amber-500" : ""}`} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive hover:text-destructive min-h-11 min-w-11"
+                    onClick={() => setDeletingEvent(event)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </Card>
           ))

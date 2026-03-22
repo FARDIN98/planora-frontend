@@ -12,6 +12,7 @@ export const eventKeys = {
   details: () => [...eventKeys.all, "detail"] as const,
   detail: (id: string) => [...eventKeys.details(), id] as const,
   my: () => [...eventKeys.all, "my"] as const,
+  featured: () => [...eventKeys.all, "featured"] as const,
 };
 
 interface EventListParams {
@@ -125,5 +126,29 @@ export function useDeleteEvent() {
     onError: (error: Error) => {
       toast.error(error.message);
     },
+  });
+}
+
+interface FeaturedEvent {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  venue: string;
+  type: string;
+  fee: number;
+  visibility: string;
+  isFeatured: boolean;
+  organizerId: string;
+  organizer: { id: string; name: string };
+  _count: { registrations: number };
+  userRegistration?: { id: string; status: string } | null;
+}
+
+export function useFeaturedEvent() {
+  return useQuery({
+    queryKey: eventKeys.featured(),
+    queryFn: () => apiFetch<FeaturedEvent | null>("/api/v1/events/featured"),
   });
 }
