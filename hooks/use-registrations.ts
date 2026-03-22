@@ -78,7 +78,12 @@ export function useJoinEvent() {
       }
       queryClient.invalidateQueries({ queryKey: registrationKeys.all });
       queryClient.invalidateQueries({ queryKey: eventKeys.all });
-      toast.success("Successfully joined event");
+      const reg = data.registration as { status?: string } | undefined;
+      if (reg?.status === "PENDING") {
+        toast.success("Request sent! Wait for approval");
+      } else {
+        toast.success("Successfully joined event");
+      }
     },
     onError: (error: Error) => {
       toast.error(error.message);

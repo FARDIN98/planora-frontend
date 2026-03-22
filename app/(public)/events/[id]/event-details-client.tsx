@@ -11,6 +11,7 @@ import {
   Pencil,
   Trash2,
   UserPlus,
+  Star,
 } from "lucide-react";
 import { useEvent, useDeleteEvent } from "@/hooks/use-events";
 import { useJoinEvent } from "@/hooks/use-registrations";
@@ -306,8 +307,8 @@ export function EventDetailsClient({ eventId }: { eventId: string }) {
         </span>
         {event.averageRating > 0 && (
           <span className="flex items-center gap-1">
-            <StarRating value={event.averageRating} readonly size="sm" />
-            <span>({event.reviewCount})</span>
+            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+            <span>{Number(event.averageRating).toFixed(1)} ({event.reviewCount})</span>
           </span>
         )}
         <Badge variant={event.type === "FREE" ? "secondary" : "default"}>

@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CalendarDays, Loader2, Mail } from "lucide-react";
+import { toast } from "sonner";
 import { EmptyState } from "@/components/shared/empty-state";
 import {
   useMyInvitations,
@@ -24,15 +26,29 @@ interface Invitation {
     fee: number;
     type: string;
   };
-  inviter: {
+  sender: {
     name: string;
   };
+  registration?: {
+    status: string;
+  } | null;
 }
 
 export default function InvitationsPage() {
+  const searchParams = useSearchParams();
   const { data, isLoading } = useMyInvitations();
   const respondInvitation = useRespondInvitation();
   const [processingId, setProcessingId] = useState<string | null>(null);
+
+  // Handle Stripe payment redirect
+  useEffect(() => {
+    const payment = searchParams.get("payment");
+    if (payment === "success") {
+      toast.success("Payment successful! Waiting for host approval.");
+    } else if (payment === "cancelled") {
+      toast.error("Payment was cancelled.");
+    }
+  }, [searchParams]);
 
   const invitations = (data?.invitations ?? []) as Invitation[];
 
@@ -88,7 +104,7 @@ export default function InvitationsPage() {
                   {invitation.event.title}
                 </Link>
                 <p className="text-sm text-muted-foreground">
-                  Invited by {invitation.inviter.name}
+                  Invited by {invitation.sender.name}
                 </p>
                 <div className="flex items-center gap-3 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
@@ -117,41 +133,61 @@ export default function InvitationsPage() {
               </div>
 
               <div className="flex flex-row gap-2 shrink-0">
-                {invitation.event.type === "FREE" ? (
-                  <Button
-                    onClick={() => handleRespond(invitation.id, "accept")}
-                    disabled={processingId === invitation.id}
-                    className="min-h-11"
-                  >
-                    {processingId === invitation.id && (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                {invitation.status === "PENDING" ? (
+                  <>
+                    {invitation.event.type === "FREE" ? (
+                      <Button
+                        onClick={() => handleRespond(invitation.id, "accept")}
+                        disabled={processingId === invitation.id}
+                        className="min-h-11"
+                      >
+                        {processingId === invitation.id && (
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        )}
+                        {processingId === invitation.id
+                          ? "Accepting..."
+                          : "Accept"}
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => handleRespond(invitation.id, "accept")}
+                        disabled={processingId === invitation.id}
+                        className="min-h-11"
+                      >
+                        {processingId === invitation.id && (
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        )}
+                        {processingId === invitation.id
+                          ? "Processing..."
+                          : "Pay & Accept"}
+                      </Button>
                     )}
-                    {processingId === invitation.id
-                      ? "Accepting..."
-                      : "Accept"}
-                  </Button>
+                    <Button
+                      variant="outline"
+                      className="min-h-11"
+                      onClick={() => handleRespond(invitation.id, "decline")}
+                      disabled={processingId === invitation.id}
+                    >
+                      Decline
+                    </Button>
+                  </>
                 ) : (
-                  <Button
-                    onClick={() => handleRespond(invitation.id, "accept")}
-                    disabled={processingId === invitation.id}
-                    className="min-h-11"
+                  <Badge
+                    variant={
+                      invitation.registration?.status === "APPROVED"
+                        ? "default"
+                        : invitation.status === "DECLINED"
+                          ? "secondary"
+                          : "outline"
+                    }
                   >
-                    {processingId === invitation.id && (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    )}
-                    {processingId === invitation.id
-                      ? "Processing..."
-                      : "Pay & Accept"}
-                  </Button>
+                    {invitation.status === "DECLINED"
+                      ? "Declined"
+                      : invitation.registration?.status === "APPROVED"
+                        ? "Accepted"
+                        : "Pending Approval"}
+                  </Badge>
                 )}
-                <Button
-                  variant="outline"
-                  className="min-h-11"
-                  onClick={() => handleRespond(invitation.id, "decline")}
-                  disabled={processingId === invitation.id}
-                >
-                  Decline
-                </Button>
               </div>
             </Card>
           ))}

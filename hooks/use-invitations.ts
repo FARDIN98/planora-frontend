@@ -70,7 +70,12 @@ export function useRespondInvitation() {
         method: "POST",
         body: JSON.stringify({ action }),
       }),
-    onSuccess: (_data, variables) => {
+    onSuccess: (data, variables) => {
+      const res = data as { checkoutUrl?: string; requiresPayment?: boolean };
+      if (res.requiresPayment && res.checkoutUrl) {
+        window.location.href = res.checkoutUrl;
+        return;
+      }
       queryClient.invalidateQueries({ queryKey: invitationKeys.all });
       queryClient.invalidateQueries({ queryKey: eventKeys.all });
       toast.success(
