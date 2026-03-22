@@ -242,36 +242,33 @@ export default function HomePage() {
               See All <ArrowRight className="inline h-4 w-4" />
             </Link>
           </div>
-        </div>
-        {gridQuery.isLoading ? (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {gridQuery.isLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {Array.from({ length: 3 }).map((_, i) => (
                 <EventCardSkeleton key={i} />
               ))}
             </div>
-          </div>
-        ) : gridEvents.length > 0 ? (
-          <div className="overflow-hidden group/slider py-1">
-            <div
-              className="flex gap-6 animate-scroll hover:[animation-play-state:paused]"
-              style={{
-                width: "max-content",
-              }}
-            >
-              {/* Duplicate cards for seamless infinite loop */}
-              {[...gridEvents, ...gridEvents].map((event, i) => (
-                <div key={`${event.id}-${i}`} className="w-[340px] shrink-0">
-                  <EventCard event={event} />
-                </div>
-              ))}
+          ) : gridEvents.length > 0 ? (
+            <div className="overflow-hidden py-1">
+              <div
+                className="flex gap-6 animate-scroll hover:[animation-play-state:paused]"
+                style={{
+                  width: "max-content",
+                }}
+              >
+                {[...gridEvents, ...gridEvents].map((event, i) => (
+                  <div key={`${event.id}-${i}`} className="w-[340px] shrink-0">
+                    <EventCard event={event} />
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          ) : (
+            <div>
             <p className="text-muted-foreground">No events found</p>
           </div>
-        )}
+          )}
+        </div>
       </section>
       </AnimatedSection>
 

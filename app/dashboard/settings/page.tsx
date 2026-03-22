@@ -125,33 +125,39 @@ export default function SettingsPage() {
       <h1 className="text-3xl font-semibold tracking-tight">Settings</h1>
 
       {sessionLoading ? (
-        <div className="space-y-6 max-w-lg mt-6">
-          <Card>
-            <CardContent className="space-y-6 pt-6">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="space-y-2">
-                  <Skeleton className="h-4 w-20" />
-                  <Skeleton className="h-10 w-full" />
-                </div>
-              ))}
-              <Skeleton className="h-10 w-full" />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="space-y-4 pt-6">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex justify-between items-center">
-                  <Skeleton className="h-4 w-40" />
-                  <Skeleton className="h-6 w-10 rounded-full" />
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <div className="self-start">
+            <Skeleton className="h-5 w-16 mb-3" />
+            <Card>
+              <CardContent className="space-y-6 pt-6">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="space-y-2">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                ))}
+                <Skeleton className="h-10 w-full" />
+              </CardContent>
+            </Card>
+          </div>
+          <div className="self-start">
+            <Skeleton className="h-5 w-28 mb-3" />
+            <Card>
+              <CardContent className="space-y-4 pt-6">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex justify-between items-center">
+                    <Skeleton className="h-4 w-40" />
+                    <Skeleton className="h-6 w-10 rounded-full" />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       ) : (
-        <div className="space-y-6 max-w-lg mt-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           {/* Profile Section */}
-          <div>
+          <div className="self-start">
             <h2 className="text-lg font-medium mb-3">Profile</h2>
             <Card>
               <CardContent className="space-y-6 pt-6">
@@ -203,7 +209,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Notifications Section */}
-          <div>
+          <div className="self-start">
             <h2 className="text-lg font-medium mb-3">Notifications</h2>
             <Card>
               <CardContent className="space-y-5 pt-6">
