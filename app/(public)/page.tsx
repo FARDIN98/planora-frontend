@@ -131,7 +131,7 @@ export default function HomePage() {
     <main id="main-content">
       {/* Hero Section — Featured Event */}
       <AnimatedSection>
-      <section className="bg-background py-12 sm:py-16 lg:py-20">
+      <section className="bg-background py-10 sm:py-12 lg:py-14">
         <div
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
           style={{
@@ -231,7 +231,7 @@ export default function HomePage() {
 
       {/* Upcoming Events — Auto-scrolling Slider */}
       <AnimatedSection>
-      <section className="bg-muted py-12 sm:py-16 lg:py-20">
+      <section className="bg-muted py-10 sm:py-12 lg:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold">Upcoming Events</h2>
@@ -252,7 +252,7 @@ export default function HomePage() {
             </div>
           </div>
         ) : gridEvents.length > 0 ? (
-          <div className="overflow-hidden group/slider">
+          <div className="overflow-hidden group/slider py-1">
             <div
               className="flex gap-6 animate-scroll hover:[animation-play-state:paused]"
               style={{
@@ -277,7 +277,7 @@ export default function HomePage() {
 
       {/* Categories Section */}
       <AnimatedSection>
-      <section className="bg-background py-12 sm:py-16 lg:py-20">
+      <section className="bg-background py-10 sm:py-12 lg:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-xl font-semibold mb-6">Browse by Category</h2>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -307,7 +307,7 @@ export default function HomePage() {
 
       {/* CTA Section */}
       <AnimatedSection>
-      <section className="bg-muted py-12 sm:py-16 lg:py-20">
+      <section className="bg-muted py-10 sm:py-12 lg:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div>
