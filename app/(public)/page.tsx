@@ -19,7 +19,7 @@ import { Card, CardContent, CardHeader, CardFooter, CardTitle } from "@/componen
 import { EventCard } from "@/components/events/event-card";
 import { EventCardSkeleton } from "@/components/events/event-card-skeleton";
 import { AnimatedSection } from "@/components/shared/animated-section";
-import { StaggeredGrid, StaggeredItem } from "@/components/shared/staggered-grid";
+
 import { useEvents, useFeaturedEvent } from "@/hooks/use-events";
 import { useJoinEvent } from "@/hooks/use-registrations";
 import { useAuth } from "@/lib/auth";
@@ -229,37 +229,49 @@ export default function HomePage() {
       </section>
       </AnimatedSection>
 
-      {/* Events Grid Section */}
+      {/* Upcoming Events — Auto-scrolling Slider */}
       <AnimatedSection>
       <section className="bg-muted py-12 sm:py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-xl font-semibold mb-6">Upcoming Events</h2>
-          {gridQuery.isLoading ? (
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold">Upcoming Events</h2>
+            <Link
+              href="/events"
+              className="text-primary hover:underline text-sm font-medium"
+            >
+              See All <ArrowRight className="inline h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+        {gridQuery.isLoading ? (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array.from({ length: 9 }).map((_, i) => (
+              {Array.from({ length: 3 }).map((_, i) => (
                 <EventCardSkeleton key={i} />
               ))}
             </div>
-          ) : gridEvents.length > 0 ? (
-            <>
-              <StaggeredGrid className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {gridEvents.map((event) => (
-                  <StaggeredItem key={event.id}>
-                    <EventCard event={event} />
-                  </StaggeredItem>
-                ))}
-              </StaggeredGrid>
-              <Link
-                href="/events"
-                className="text-primary hover:underline text-sm font-medium mt-6 inline-block"
-              >
-                See All Events <ArrowRight className="inline h-4 w-4" />
-              </Link>
-            </>
-          ) : (
+          </div>
+        ) : gridEvents.length > 0 ? (
+          <div className="overflow-hidden group/slider">
+            <div
+              className="flex gap-6 animate-scroll hover:[animation-play-state:paused]"
+              style={{
+                width: "max-content",
+              }}
+            >
+              {/* Duplicate cards for seamless infinite loop */}
+              {[...gridEvents, ...gridEvents].map((event, i) => (
+                <div key={`${event.id}-${i}`} className="w-[340px] shrink-0">
+                  <EventCard event={event} />
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <p className="text-muted-foreground">No events found</p>
-          )}
-        </div>
+          </div>
+        )}
       </section>
       </AnimatedSection>
 
