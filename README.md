@@ -1,36 +1,177 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Planora — Frontend
+
+The client application for **Planora**, a full-stack event management platform built with Next.js. Users can discover, create, join, and manage events — with Stripe payments, an invitation system, reviews, and an admin dashboard.
+
+**Live URL:** https://planora-frontend.vercel.app
+---
+
+---
+## Admin Credentials
+
+```
+Email    : admin@planora.com
+Password : admin123
+```
+---
+
+## Features
+
+### Public Pages
+- **Homepage** — Hero with featured event, upcoming events auto-scrolling slider, event category filters, call-to-action section
+- **Events Discovery** — Search by title/organizer, filter by visibility (Public/Private) and type (Free/Paid), paginated results
+- **Event Details** — Full event info with context-aware action buttons, owner controls, and review section
+
+### Authentication
+- **Register & Login** — JWT-based auth with form validation and error handling
+- **Route Protection** — Edge middleware blocks unauthorized access before page load
+- **Role-Based UI** — Admin features visible only to admin users
+
+### Dashboard
+- **My Events** — Create, edit, and delete events with participant management (approve/reject/ban)
+- **Invitations** — Accept, decline, or Pay & Accept invitations for paid events
+- **My Reviews** — View, edit, and delete submitted reviews
+- **Settings** — Update profile name and notification preferences
+
+### Admin Panel
+- **Event Management** — View all events, delete inappropriate content, set featured event
+- **User Management** — View all users, delete accounts
+- **Access Denied Page** — Non-admin users see a clear error page
+
+### Payments
+- **Stripe Integration** — Seamless checkout for paid events and paid invitations
+- **Post-Payment Flow** — Redirect handling with success/cancel notifications
+
+### UI/UX
+- **Responsive Design** — Mobile, tablet, and desktop layouts
+- **Dark/Light Mode** — Theme toggle with system preference detection
+- **Loading States** — Skeleton loaders and spinner indicators throughout
+- **Toast Notifications** — Success, error, and info feedback via Sonner
+- **Animations** — Page transitions, staggered grids, auto-scrolling slider
+
+---
+
+## Tech Stack
+
+| Layer            | Technology                          |
+| ---------------- | ----------------------------------- |
+| Framework        | Next.js 16                          |
+| Language         | TypeScript 5                        |
+| UI Components    | shadcn/ui + Radix UI                |
+| Styling          | Tailwind CSS 4                      |
+| State Management | Zustand + React Context             |
+| Server State     | TanStack React Query v5             |
+| Icons            | Lucide React                        |
+| Animations       | Motion (Framer Motion)              |
+| Notifications    | Sonner                              |
+| Theme            | next-themes                         |
+| Deployment       | Vercel                              |
+
+---
+
+## Project Structure
+
+```
+app/
+├── (public)/           # Public pages (home, events, about, contact, privacy)
+│   ├── page.tsx        # Homepage with 4 sections
+│   └── events/         # Events listing and detail pages
+├── (auth)/             # Login and register pages
+├── dashboard/          # User dashboard (events, invitations, reviews, settings)
+├── admin/              # Admin panel (events, users management)
+├── unauthorized/       # Access denied page
+├── layout.tsx          # Root layout with providers
+├── not-found.tsx       # Custom 404 page
+└── error.tsx           # Error boundary
+components/
+├── ui/                 # shadcn/ui components (Button, Card, Dialog, etc.)
+├── layout/             # Navbar, Footer, PageTransition
+├── events/             # EventCard, StarRating, InviteUserDialog
+├── dashboard/          # DashboardSidebar, DashboardHeader
+├── admin/              # AdminSidebar
+├── shared/             # EmptyState, AnimatedSection, StaggeredGrid
+└── providers/          # QueryProvider, ThemeProvider
+hooks/                  # Custom hooks (useEvents, useRegistrations, etc.)
+lib/                    # API client, auth context, utilities
+middleware.ts           # Edge route protection
+```
+
+---
+
+## Pages Overview
+
+| Route                         | Description                        | Access     |
+| ----------------------------- | ---------------------------------- | ---------- |
+| `/`                           | Homepage                           | Public     |
+| `/events`                     | Events listing with search/filter  | Public     |
+| `/events/:id`                 | Event details + reviews            | Public     |
+| `/login`                      | Login page                         | Guest only |
+| `/register`                   | Register page                      | Guest only |
+| `/dashboard`                  | Dashboard home                     | Auth       |
+| `/dashboard/events`           | My events management               | Auth       |
+| `/dashboard/events/create`    | Create new event                   | Auth       |
+| `/dashboard/events/:id/edit`  | Edit event                         | Auth       |
+| `/dashboard/invitations`      | Pending invitations                | Auth       |
+| `/dashboard/reviews`          | My reviews                         | Auth       |
+| `/dashboard/settings`         | Profile & notification settings    | Auth       |
+| `/admin`                      | Admin overview                     | Admin      |
+| `/admin/events`               | Manage all events                  | Admin      |
+| `/admin/users`                | Manage all users                   | Admin      |
+| `/about`                      | About page                         | Public     |
+| `/contact`                    | Contact page                       | Public     |
+| `/privacy`                    | Privacy policy                     | Public     |
+| `/unauthorized`               | Access denied                      | Public     |
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) 18+ or [Bun](https://bun.sh/) 1.0+
+- Planora backend running locally or deployed
+
+### Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Clone the repository
+git clone https://github.com/your-username/planora-frontend.git
+cd planora-frontend
+
+# Install dependencies
+bun install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create a `.env.local` file in the root directory:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5001
+```
 
-## Learn More
+For production, point to your deployed backend:
 
-To learn more about Next.js, take a look at the following resources:
+```env
+NEXT_PUBLIC_API_URL=render_url
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Run Development Server
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+bun run dev
+```
 
-## Deploy on Vercel
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Build for Production
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+bun run build
+bun run start
+```
+
+---
+
+## Deployment
+
+Deployed on **Vercel** with automatic builds from the `main` branch. The `next.config.ts` includes API rewrites to proxy `/api/*` requests to the backend.

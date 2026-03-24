@@ -28,6 +28,15 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const TOKEN_KEY = "token";
+const COOKIE_MAX_AGE = 7 * 24 * 60 * 60; // 7 days — matches JWT expiry
+
+function setTokenCookie(token: string) {
+  document.cookie = `token=${token}; path=/; max-age=${COOKIE_MAX_AGE}; samesite=lax`;
+}
+
+function clearTokenCookie() {
+  document.cookie = "token=; path=/; max-age=0; samesite=lax";
+}
 
 function decodeJwt(token: string): User | null {
   try {
@@ -68,24 +77,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (isTokenExpired(token)) {
         // Per D-04: silently redirect to /login on expiry
         localStorage.removeItem(TOKEN_KEY);
+        clearTokenCookie();
         setUser(null);
         router.replace("/login");
       } else {
         const decoded = decodeJwt(token);
         setUser(decoded);
+        setTokenCookie(token); // Keep cookie in sync
       }
+    } else {
+      clearTokenCookie(); // No token in localStorage → clear stale cookie
     }
     setIsLoading(false);
   }, [router]);
 
   const login = useCallback((token: string) => {
     localStorage.setItem(TOKEN_KEY, token);
+    setTokenCookie(token);
     const decoded = decodeJwt(token);
     setUser(decoded);
   }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY);
+    clearTokenCookie();
     setUser(null);
     router.push("/");
   }, [router]);
@@ -93,6 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // setToken is for re-issuing after profile update (per D-14)
   const setToken = useCallback((token: string) => {
     localStorage.setItem(TOKEN_KEY, token);
+    setTokenCookie(token);
     const decoded = decodeJwt(token);
     setUser(decoded);
   }, []);
