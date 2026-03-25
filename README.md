@@ -2,7 +2,7 @@
 
 The client application for **Planora**, a full-stack event management platform built with Next.js. Users can discover, create, join, and manage events — with Stripe payments, an invitation system, reviews, and an admin dashboard.
 
-**Live URL:** https://planora-frontend.vercel.app
+**Live URL:** https://planora-frontend-iota.vercel.app
 ---
 
 ---
