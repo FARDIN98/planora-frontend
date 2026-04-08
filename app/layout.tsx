@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { QueryProvider } from "@/components/providers/query-provider";
@@ -8,6 +9,7 @@ import { AuthProvider } from "@/lib/auth";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SkipToContent } from "@/components/layout/skip-to-content";
+import { ChatbotBubble } from "@/components/ai/chatbot-bubble";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -32,9 +34,13 @@ export default function RootLayout({
                 {children}
               </TooltipProvider>
               <Toaster position="bottom-right" duration={4000} />
+              {process.env.NEXT_PUBLIC_GEMINI_ENABLED !== "false" && <ChatbotBubble />}
             </QueryProvider>
           </AuthProvider>
         </ThemeProvider>
+        {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && (
+          <Script src="https://accounts.google.com/gsi/client" strategy="lazyOnload" />
+        )}
       </body>
     </html>
   );

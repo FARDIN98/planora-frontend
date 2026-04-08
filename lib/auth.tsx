@@ -21,6 +21,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (token: string) => void;
+  loginWithGoogle: (idToken: string) => Promise<void>;
   logout: () => void;
   setToken: (token: string) => void;
 }
@@ -105,6 +106,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push("/");
   }, [router]);
 
+  const loginWithGoogle = useCallback(async (idToken: string) => {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+    const res = await fetch(`${API_URL}/api/v1/auth/google`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken }),
+    });
+    const json = await res.json();
+    if (!json.success) {
+      throw new Error(json.error?.message || "Google login failed");
+    }
+    const { accessToken } = json.data;
+    localStorage.setItem(TOKEN_KEY, accessToken);
+    setTokenCookie(accessToken);
+    const decoded = decodeJwt(accessToken);
+    setUser(decoded);
+  }, []);
+
   // setToken is for re-issuing after profile update (per D-14)
   const setToken = useCallback((token: string) => {
     localStorage.setItem(TOKEN_KEY, token);
@@ -114,7 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout, setToken }}>
+    <AuthContext.Provider value={{ user, isLoading, login, loginWithGoogle, logout, setToken }}>
       {children}
     </AuthContext.Provider>
   );
