@@ -2,7 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Calendar, Users, ArrowLeft, LogOut, CalendarDays } from "lucide-react";
+import {
+  LayoutDashboard,
+  Calendar,
+  Users,
+  ArrowLeft,
+  LogOut,
+  CalendarDays,
+  FileText,
+  BarChart3,
+  Mail,
+  FileBarChart,
+} from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -23,6 +34,10 @@ const navItems = [
   { label: "Overview", href: "/admin", icon: LayoutDashboard, exact: true },
   { label: "Events", href: "/admin/events", icon: Calendar, exact: false },
   { label: "Users", href: "/admin/users", icon: Users, exact: false },
+  { label: "Blog Posts", href: "/admin/blog", icon: FileText, exact: false },
+  { label: "Analytics", href: "/admin/analytics", icon: BarChart3, exact: false },
+  { label: "Newsletter", href: "/admin/newsletter", icon: Mail, exact: false },
+  { label: "Reports", href: "/admin/reports", icon: FileBarChart, exact: false },
 ];
 
 export function AdminSidebar() {
