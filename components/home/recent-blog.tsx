@@ -51,12 +51,12 @@ export function RecentBlog({ posts }: RecentBlogProps) {
                   {/* Cover Image */}
                   <div className="relative aspect-video overflow-hidden">
                     <img
-                      src={post.coverImage || "/placeholder-event.jpg"}
+                      src={post.coverImage || "/placeholder-event.svg"}
                       alt={post.title}
                       className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src =
-                          "/placeholder-event.jpg";
+                          "/placeholder-event.svg";
                       }}
                     />
                   </div>

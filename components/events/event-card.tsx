@@ -41,12 +41,12 @@ export function EventCard({ event }: EventCardProps) {
           <Skeleton className="absolute inset-0" />
         )}
         <img
-          src={event.imageUrl || "/placeholder-event.jpg"}
+          src={event.imageUrl || "/placeholder-event.svg"}
           alt={event.title}
           className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
           onLoad={() => setImageLoaded(true)}
           onError={(e) => {
-            (e.target as HTMLImageElement).src = "/placeholder-event.jpg";
+            (e.target as HTMLImageElement).src = "/placeholder-event.svg";
             setImageLoaded(true);
           }}
         />

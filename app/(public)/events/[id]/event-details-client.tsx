@@ -321,11 +321,11 @@ export function EventDetailsClient({ eventId }: { eventId: string }) {
       {/* Hero Image */}
       <div className="relative w-full h-64 md:h-96 bg-muted">
         <img
-          src={event.imageUrl || "/placeholder-event.jpg"}
+          src={event.imageUrl || "/placeholder-event.svg"}
           alt={event.title}
           className="w-full h-full object-cover"
           onError={(e) => {
-            (e.target as HTMLImageElement).src = "/placeholder-event.jpg";
+            (e.target as HTMLImageElement).src = "/placeholder-event.svg";
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />

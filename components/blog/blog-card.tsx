@@ -34,12 +34,12 @@ export function BlogCard({ post }: BlogCardProps) {
       <div className="relative aspect-video overflow-hidden">
         {!imageLoaded && <Skeleton className="absolute inset-0" />}
         <img
-          src={post.coverImage || "/placeholder-event.jpg"}
+          src={post.coverImage || "/placeholder-event.svg"}
           alt={post.title}
           className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
           onLoad={() => setImageLoaded(true)}
           onError={(e) => {
-            (e.target as HTMLImageElement).src = "/placeholder-event.jpg";
+            (e.target as HTMLImageElement).src = "/placeholder-event.svg";
             setImageLoaded(true);
           }}
         />

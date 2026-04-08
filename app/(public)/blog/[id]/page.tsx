@@ -89,11 +89,11 @@ export default function BlogPostPage({
       {/* Hero Image */}
       <div className="relative w-full h-64 md:h-96">
         <img
-          src={post.coverImage || "/placeholder-event.jpg"}
+          src={post.coverImage || "/placeholder-event.svg"}
           alt={post.title}
           className="w-full h-full object-cover"
           onError={(e) => {
-            (e.target as HTMLImageElement).src = "/placeholder-event.jpg";
+            (e.target as HTMLImageElement).src = "/placeholder-event.svg";
           }}
         />
       </div>
