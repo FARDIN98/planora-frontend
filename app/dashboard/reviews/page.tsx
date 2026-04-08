@@ -10,9 +10,9 @@ import {
   useDeleteReview,
 } from "@/hooks/use-reviews";
 import { StarRating } from "@/components/events/star-rating";
+import { DataTable } from "@/components/data-tables/data-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
@@ -44,7 +44,8 @@ interface Review {
 }
 
 export default function MyReviewsPage() {
-  const { data, isLoading } = useMyReviews();
+  const [page, setPage] = useState(1);
+  const { data, isLoading } = useMyReviews({ page, limit: 10 });
   const updateReview = useUpdateReview();
   const deleteReview = useDeleteReview();
 
@@ -56,6 +57,7 @@ export default function MyReviewsPage() {
   const [deleteTarget, setDeleteTarget] = useState<Review | null>(null);
 
   const reviews = (data?.reviews ?? []) as Review[];
+  const totalPages = data?.totalPages ?? 1;
 
   const handleEditOpen = (review: Review) => {
     setEditingReview(review);
@@ -88,32 +90,77 @@ export default function MyReviewsPage() {
     });
   };
 
+  const columns: ColumnDef<Review, unknown>[] = [
+    {
+      accessorKey: "event.title",
+      header: "Event",
+      cell: ({ row }) => (
+        <Link
+          href={`/events/${row.original.event.id}`}
+          className="font-medium hover:underline"
+        >
+          {row.original.event.title}
+        </Link>
+      ),
+    },
+    {
+      accessorKey: "rating",
+      header: "Rating",
+      cell: ({ row }) => (
+        <StarRating value={row.original.rating} readonly size="sm" />
+      ),
+    },
+    {
+      accessorKey: "comment",
+      header: "Comment",
+      cell: ({ row }) => (
+        <span className="line-clamp-1 max-w-[200px]">
+          {row.original.comment || "-"}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "createdAt",
+      header: "Date",
+      cell: ({ row }) =>
+        new Date(row.original.createdAt).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => handleEditOpen(row.original)}
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="text-destructive"
+            onClick={() => setDeleteTarget(row.original)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div>
-      <h1 className="text-3xl font-semibold tracking-tight">My Reviews</h1>
+      <h1 className="text-3xl font-semibold tracking-tight mb-6">
+        My Reviews
+      </h1>
 
-      {isLoading ? (
-        <div className="space-y-4 mt-6">
-          {[1, 2, 3].map((i) => (
-            <Card key={i} className="p-4">
-              <div className="flex items-start justify-between">
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-3">
-                    <Skeleton className="h-4 w-[40%]" />
-                    <Skeleton className="h-4 w-20" />
-                  </div>
-                  <Skeleton className="h-3 w-24" />
-                  <Skeleton className="h-4 w-[70%]" />
-                </div>
-                <div className="flex gap-1">
-                  <Skeleton className="h-8 w-8" />
-                  <Skeleton className="h-8 w-8" />
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      ) : reviews.length === 0 ? (
+      {!isLoading && reviews.length === 0 ? (
         <EmptyState
           icon={Star}
           heading="No reviews yet"
@@ -122,54 +169,14 @@ export default function MyReviewsPage() {
           ctaHref="/events"
         />
       ) : (
-        <div className="space-y-4 mt-6">
-          {reviews.map((review) => (
-            <Card key={review.id} className="p-4">
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-3">
-                    <Link
-                      href={`/events/${review.event.id}`}
-                      className="font-semibold hover:underline"
-                    >
-                      {review.event.title}
-                    </Link>
-                    <StarRating value={review.rating} readonly size="sm" />
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {new Date(review.createdAt).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </p>
-                </div>
-                <div className="flex gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => handleEditOpen(review)}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    className="text-destructive"
-                    onClick={() => setDeleteTarget(review)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              {review.comment && (
-                <p className="text-sm text-muted-foreground mt-2">
-                  {review.comment}
-                </p>
-              )}
-            </Card>
-          ))}
-        </div>
+        <DataTable
+          columns={columns}
+          data={reviews}
+          pageCount={totalPages}
+          page={page}
+          onPageChange={setPage}
+          isLoading={isLoading}
+        />
       )}
 
       {/* Edit Review Dialog */}

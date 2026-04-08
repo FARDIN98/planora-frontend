@@ -2,11 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Plus, Pencil, Trash2, CalendarDays, Users, Loader2 } from "lucide-react";
-import { useMyEvents, useDeleteEvent } from "@/hooks/use-events";
+import { FileText, Pencil, Trash2, Loader2, Plus, ExternalLink } from "lucide-react";
+import { useUserBlogPosts, useDeleteBlogPost } from "@/hooks/use-blog";
 import { DataTable } from "@/components/data-tables/data-table";
 import { EmptyState } from "@/components/shared/empty-state";
-import dynamic from "next/dynamic";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,50 +20,37 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-const ManageParticipantsModal = dynamic(
-  () =>
-    import("@/components/events/manage-participants-modal").then((mod) => ({
-      default: mod.ManageParticipantsModal,
-    })),
-  { ssr: false }
-);
-
-interface Event {
+interface BlogPost {
   id: string;
   title: string;
-  date: string;
-  time?: string;
-  venue?: string;
-  type: string;
-  visibility: string;
-  fee: number;
-  _count?: { registrations?: number };
+  tags: string;
+  published: boolean;
+  createdAt: string;
 }
 
-export default function MyEventsPage() {
+export default function DashboardBlogPage() {
   const [page, setPage] = useState(1);
-  const { data, isLoading } = useMyEvents({ page, limit: 10 });
-  const deleteEvent = useDeleteEvent();
-  const [deleteTarget, setDeleteTarget] = useState<Event | null>(null);
-  const [manageEventId, setManageEventId] = useState<string | null>(null);
+  const { data, isLoading } = useUserBlogPosts(page, 10);
+  const deleteBlogPost = useDeleteBlogPost();
+  const [deleteTarget, setDeleteTarget] = useState<BlogPost | null>(null);
 
-  const events = (data?.events ?? []) as Event[];
+  const posts = (data?.posts ?? []) as BlogPost[];
   const totalPages = data?.totalPages ?? 1;
 
   const handleDelete = () => {
     if (!deleteTarget) return;
-    deleteEvent.mutate(deleteTarget.id, {
+    deleteBlogPost.mutate(deleteTarget.id, {
       onSuccess: () => setDeleteTarget(null),
     });
   };
 
-  const columns: ColumnDef<Event, unknown>[] = [
+  const columns: ColumnDef<BlogPost, unknown>[] = [
     {
       accessorKey: "title",
       header: "Title",
       cell: ({ row }) => (
         <Link
-          href={`/events/${row.original.id}`}
+          href={`/blog/${row.original.id}`}
           className="font-medium hover:underline"
         >
           {row.original.title}
@@ -72,39 +58,40 @@ export default function MyEventsPage() {
       ),
     },
     {
-      accessorKey: "date",
-      header: "Date",
+      accessorKey: "createdAt",
+      header: "Published",
       cell: ({ row }) =>
-        new Date(row.original.date).toLocaleDateString("en-US", {
+        new Date(row.original.createdAt).toLocaleDateString("en-US", {
           month: "short",
           day: "numeric",
           year: "numeric",
         }),
     },
     {
-      accessorKey: "type",
-      header: "Type",
-      cell: ({ row }) => (
-        <Badge variant={row.original.type === "FREE" ? "secondary" : "default"}>
-          {row.original.type}
-        </Badge>
-      ),
+      accessorKey: "tags",
+      header: "Tags",
+      cell: ({ row }) => {
+        const tags = row.original.tags
+          ? row.original.tags.split(",").map((t) => t.trim()).filter(Boolean)
+          : [];
+        return (
+          <div className="flex flex-wrap gap-1">
+            {tags.length > 0
+              ? tags.map((tag) => (
+                  <Badge key={tag} variant="outline" className="text-xs">
+                    {tag}
+                  </Badge>
+                ))
+              : "-"}
+          </div>
+        );
+      },
     },
     {
-      accessorKey: "visibility",
-      header: "Visibility",
-      cell: ({ row }) => (
-        <Badge variant="outline">{row.original.visibility}</Badge>
-      ),
-    },
-    {
-      id: "participants",
-      header: "Participants",
-      cell: ({ row }) => (
-        <span className="flex items-center gap-1">
-          <Users className="h-4 w-4 text-muted-foreground" />
-          {row.original._count?.registrations ?? 0}
-        </span>
+      id: "status",
+      header: "Status",
+      cell: () => (
+        <Badge variant="default">Published</Badge>
       ),
     },
     {
@@ -113,7 +100,12 @@ export default function MyEventsPage() {
       cell: ({ row }) => (
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="icon-sm" asChild>
-            <Link href={`/dashboard/events/${row.original.id}/edit`}>
+            <Link href={`/blog/${row.original.id}`}>
+              <ExternalLink className="h-4 w-4" />
+            </Link>
+          </Button>
+          <Button variant="ghost" size="icon-sm" asChild>
+            <Link href={`/blog/${row.original.id}/edit`}>
               <Pencil className="h-4 w-4" />
             </Link>
           </Button>
@@ -125,13 +117,6 @@ export default function MyEventsPage() {
           >
             <Trash2 className="h-4 w-4" />
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setManageEventId(row.original.id)}
-          >
-            Manage
-          </Button>
         </div>
       ),
     },
@@ -140,27 +125,27 @@ export default function MyEventsPage() {
   return (
     <div>
       <header className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-semibold tracking-tight">My Events</h1>
-        <Link href="/dashboard/events/create">
+        <h1 className="text-3xl font-semibold tracking-tight">Blog Posts</h1>
+        <Link href="/blog/create">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            Create Event
+            Write New Post
           </Button>
         </Link>
       </header>
 
-      {!isLoading && events.length === 0 ? (
+      {!isLoading && posts.length === 0 ? (
         <EmptyState
-          icon={CalendarDays}
-          heading="No events yet"
-          body="You haven't created any events. Get started by creating your first one."
-          ctaLabel="Create Event"
-          ctaHref="/dashboard/events/create"
+          icon={FileText}
+          heading="No blog posts yet"
+          body="Share your experiences and insights. Write your first blog post."
+          ctaLabel="Write New Post"
+          ctaHref="/blog/create"
         />
       ) : (
         <DataTable
           columns={columns}
-          data={events}
+          data={posts}
           pageCount={totalPages}
           page={page}
           onPageChange={setPage}
@@ -178,8 +163,8 @@ export default function MyEventsPage() {
               Delete &quot;{deleteTarget?.title}&quot;?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. The event and all its registrations
-              will be permanently removed.
+              This action cannot be undone. Your blog post will be permanently
+              removed.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -187,24 +172,16 @@ export default function MyEventsPage() {
             <AlertDialogAction
               variant="destructive"
               onClick={handleDelete}
-              disabled={deleteEvent.isPending}
+              disabled={deleteBlogPost.isPending}
             >
-              {deleteEvent.isPending && (
+              {deleteBlogPost.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              {deleteEvent.isPending ? "Deleting..." : "Delete"}
+              {deleteBlogPost.isPending ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {manageEventId && (
-        <ManageParticipantsModal
-          eventId={manageEventId}
-          open={!!manageEventId}
-          onOpenChange={(open) => !open && setManageEventId(null)}
-        />
-      )}
     </div>
   );
 }
