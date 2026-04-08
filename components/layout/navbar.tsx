@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, Menu, LogOut, User } from "lucide-react";
+import { CalendarDays, Menu, LogOut, User, Settings } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,13 @@ import {
 const publicLinks = [
   { href: "/", label: "Home" },
   { href: "/events", label: "Events" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
+];
+
+const authedLinks = [
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/dashboard/events", label: "My Events" },
 ];
 
 export function Navbar() {
@@ -43,7 +50,7 @@ export function Navbar() {
     cn(
       "text-sm transition-colors",
       isActive(href)
-        ? "text-primary font-semibold"
+        ? "text-foreground font-semibold"
         : "text-muted-foreground hover:text-foreground"
     );
 
@@ -55,13 +62,13 @@ export function Navbar() {
 
   return (
     <nav className="border-b bg-background" aria-label="Main navigation">
-      <div className="max-w-7xl mx-auto px-8 py-4 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
             <CalendarDays className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="font-semibold text-xl">Planora</span>
+          <span className="text-primary font-bold text-xl">Planora</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -72,13 +79,16 @@ export function Navbar() {
             </Link>
           ))}
 
+          {user && authedLinks.map((link) => (
+            <Link key={link.href} href={link.href} className={linkClass(link.href)}>
+              {link.label}
+            </Link>
+          ))}
+
           <ThemeToggle />
 
           {user ? (
             <>
-              <Link href="/dashboard" className={linkClass("/dashboard")}>
-                Dashboard
-              </Link>
               {user.role === "admin" && (
                 <Link href="/admin" className={linkClass("/admin")}>
                   Admin
@@ -86,7 +96,10 @@ export function Navbar() {
               )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-full" aria-label="User menu">
+                  <button
+                    className="focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-full"
+                    aria-label="User menu"
+                  >
                     <Avatar>
                       <AvatarFallback>{userInitial}</AvatarFallback>
                     </Avatar>
@@ -94,9 +107,15 @@ export function Navbar() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem asChild>
+                    <Link href="/dashboard/events" className="flex items-center gap-2">
+                      <CalendarDays className="h-4 w-4" />
+                      My Events
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
                     <Link href="/dashboard/settings" className="flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      Profile
+                      <Settings className="h-4 w-4" />
+                      Settings
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -109,9 +128,9 @@ export function Navbar() {
             </>
           ) : (
             <>
-              <Link href="/login" className={linkClass("/login")}>
-                Login
-              </Link>
+              <Button variant="ghost" asChild>
+                <Link href="/login">Login</Link>
+              </Button>
               <Button asChild>
                 <Link href="/register">Sign Up</Link>
               </Button>
@@ -135,7 +154,7 @@ export function Navbar() {
                     <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
                       <CalendarDays className="h-5 w-5 text-primary-foreground" />
                     </div>
-                    <span className="font-semibold text-xl">Planora</span>
+                    <span className="text-primary font-bold text-xl">Planora</span>
                   </Link>
                 </SheetTitle>
               </SheetHeader>
@@ -150,11 +169,13 @@ export function Navbar() {
 
                 {user ? (
                   <>
-                    <SheetClose asChild>
-                      <Link href="/dashboard" className={linkClass("/dashboard")}>
-                        Dashboard
-                      </Link>
-                    </SheetClose>
+                    {authedLinks.map((link) => (
+                      <SheetClose asChild key={link.href}>
+                        <Link href={link.href} className={linkClass(link.href)}>
+                          {link.label}
+                        </Link>
+                      </SheetClose>
+                    ))}
                     {user.role === "admin" && (
                       <SheetClose asChild>
                         <Link href="/admin" className={linkClass("/admin")}>
@@ -164,7 +185,7 @@ export function Navbar() {
                     )}
                     <SheetClose asChild>
                       <Link href="/dashboard/settings" className={linkClass("/dashboard/settings")}>
-                        Profile
+                        Settings
                       </Link>
                     </SheetClose>
                     <button
