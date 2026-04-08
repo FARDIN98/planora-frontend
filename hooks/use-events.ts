@@ -21,6 +21,13 @@ interface EventListParams {
   search?: string;
   visibility?: string;
   type?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  priceMin?: number;
+  priceMax?: number;
+  venue?: string;
+  sortBy?: string;
+  sortOrder?: string;
 }
 
 interface EventListResponse {
@@ -38,6 +45,13 @@ export function useEvents(params?: EventListParams) {
   if (params?.search) query.set("search", params.search);
   if (params?.visibility) query.set("visibility", params.visibility);
   if (params?.type) query.set("type", params.type);
+  if (params?.dateFrom) query.set("dateFrom", params.dateFrom);
+  if (params?.dateTo) query.set("dateTo", params.dateTo);
+  if (params?.priceMin !== undefined) query.set("priceMin", String(params.priceMin));
+  if (params?.priceMax !== undefined) query.set("priceMax", String(params.priceMax));
+  if (params?.venue) query.set("venue", params.venue);
+  if (params?.sortBy) query.set("sortBy", params.sortBy);
+  if (params?.sortOrder) query.set("sortOrder", params.sortOrder);
   const qs = query.toString();
 
   return useQuery({
