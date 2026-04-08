@@ -35,6 +35,7 @@ export function BlogEditor({
   editable = true,
 }: BlogEditorProps) {
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit,
       LinkExtension.configure({ openOnClick: false }),
