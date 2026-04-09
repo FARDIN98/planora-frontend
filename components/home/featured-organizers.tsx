@@ -6,7 +6,7 @@ interface FeaturedOrganizersProps {
   organizers?: {
     id: string;
     name: string;
-    eventCount: number;
+    _count: { events: number };
   }[];
 }
 
@@ -33,7 +33,7 @@ export function FeaturedOrganizers({ organizers }: FeaturedOrganizersProps) {
                 </Avatar>
                 <h3 className="text-base font-semibold">{organizer.name}</h3>
                 <Badge variant="secondary">
-                  {organizer.eventCount} events organized
+                  {organizer._count.events} events organized
                 </Badge>
               </CardContent>
             </Card>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { Pencil, Trash2, Loader2, Star } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -59,12 +59,12 @@ export default function MyReviewsPage() {
   const reviews = (data?.reviews ?? []) as Review[];
   const totalPages = data?.totalPages ?? 1;
 
-  const handleEditOpen = (review: Review) => {
+  const handleEditOpen = useCallback((review: Review) => {
     setEditingReview(review);
     setEditRating(review.rating);
     setEditComment(review.comment);
     setEditOpen(true);
-  };
+  }, []);
 
   const handleEditSave = () => {
     if (!editingReview) return;
@@ -90,69 +90,72 @@ export default function MyReviewsPage() {
     });
   };
 
-  const columns: ColumnDef<Review, unknown>[] = [
-    {
-      accessorKey: "event.title",
-      header: "Event",
-      cell: ({ row }) => (
-        <Link
-          href={`/events/${row.original.event.id}`}
-          className="font-medium hover:underline"
-        >
-          {row.original.event.title}
-        </Link>
-      ),
-    },
-    {
-      accessorKey: "rating",
-      header: "Rating",
-      cell: ({ row }) => (
-        <StarRating value={row.original.rating} readonly size="sm" />
-      ),
-    },
-    {
-      accessorKey: "comment",
-      header: "Comment",
-      cell: ({ row }) => (
-        <span className="line-clamp-1 max-w-[200px]">
-          {row.original.comment || "-"}
-        </span>
-      ),
-    },
-    {
-      accessorKey: "createdAt",
-      header: "Date",
-      cell: ({ row }) =>
-        new Date(row.original.createdAt).toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        }),
-    },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => handleEditOpen(row.original)}
+  const columns: ColumnDef<Review, unknown>[] = useMemo(
+    () => [
+      {
+        accessorKey: "event.title",
+        header: "Event",
+        cell: ({ row }) => (
+          <Link
+            href={`/events/${row.original.event.id}`}
+            className="font-medium hover:underline"
           >
-            <Pencil className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="text-destructive"
-            onClick={() => setDeleteTarget(row.original)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      ),
-    },
-  ];
+            {row.original.event.title}
+          </Link>
+        ),
+      },
+      {
+        accessorKey: "rating",
+        header: "Rating",
+        cell: ({ row }) => (
+          <StarRating value={row.original.rating} readonly size="sm" />
+        ),
+      },
+      {
+        accessorKey: "comment",
+        header: "Comment",
+        cell: ({ row }) => (
+          <span className="line-clamp-1 max-w-[200px]">
+            {row.original.comment || "-"}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "createdAt",
+        header: "Date",
+        cell: ({ row }) =>
+          new Date(row.original.createdAt).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          }),
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }) => (
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => handleEditOpen(row.original)}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="text-destructive"
+              onClick={() => setDeleteTarget(row.original)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    [handleEditOpen, setDeleteTarget]
+  );
 
   return (
     <div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { FileText, Pencil, Trash2, Loader2, Plus, ExternalLink } from "lucide-react";
 import { useUserBlogPosts, useDeleteBlogPost } from "@/hooks/use-blog";
@@ -44,83 +44,86 @@ export default function DashboardBlogPage() {
     });
   };
 
-  const columns: ColumnDef<BlogPost, unknown>[] = [
-    {
-      accessorKey: "title",
-      header: "Title",
-      cell: ({ row }) => (
-        <Link
-          href={`/blog/${row.original.id}`}
-          className="font-medium hover:underline"
-        >
-          {row.original.title}
-        </Link>
-      ),
-    },
-    {
-      accessorKey: "createdAt",
-      header: "Published",
-      cell: ({ row }) =>
-        new Date(row.original.createdAt).toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        }),
-    },
-    {
-      accessorKey: "tags",
-      header: "Tags",
-      cell: ({ row }) => {
-        const tags = row.original.tags
-          ? row.original.tags.split(",").map((t) => t.trim()).filter(Boolean)
-          : [];
-        return (
-          <div className="flex flex-wrap gap-1">
-            {tags.length > 0
-              ? tags.map((tag) => (
-                  <Badge key={tag} variant="outline" className="text-xs">
-                    {tag}
-                  </Badge>
-                ))
-              : "-"}
-          </div>
-        );
-      },
-    },
-    {
-      id: "status",
-      header: "Status",
-      cell: () => (
-        <Badge variant="default">Published</Badge>
-      ),
-    },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon-sm" asChild>
-            <Link href={`/blog/${row.original.id}`}>
-              <ExternalLink className="h-4 w-4" />
-            </Link>
-          </Button>
-          <Button variant="ghost" size="icon-sm" asChild>
-            <Link href={`/blog/${row.original.id}/edit`}>
-              <Pencil className="h-4 w-4" />
-            </Link>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="text-destructive"
-            onClick={() => setDeleteTarget(row.original)}
+  const columns: ColumnDef<BlogPost, unknown>[] = useMemo(
+    () => [
+      {
+        accessorKey: "title",
+        header: "Title",
+        cell: ({ row }) => (
+          <Link
+            href={`/blog/${row.original.id}`}
+            className="font-medium hover:underline"
           >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      ),
-    },
-  ];
+            {row.original.title}
+          </Link>
+        ),
+      },
+      {
+        accessorKey: "createdAt",
+        header: "Published",
+        cell: ({ row }) =>
+          new Date(row.original.createdAt).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          }),
+      },
+      {
+        accessorKey: "tags",
+        header: "Tags",
+        cell: ({ row }) => {
+          const tags = row.original.tags
+            ? row.original.tags.split(",").map((t) => t.trim()).filter(Boolean)
+            : [];
+          return (
+            <div className="flex flex-wrap gap-1">
+              {tags.length > 0
+                ? tags.map((tag) => (
+                    <Badge key={tag} variant="outline" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))
+                : "-"}
+            </div>
+          );
+        },
+      },
+      {
+        id: "status",
+        header: "Status",
+        cell: () => (
+          <Badge variant="default">Published</Badge>
+        ),
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }) => (
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon-sm" asChild>
+              <Link href={`/blog/${row.original.id}`}>
+                <ExternalLink className="h-4 w-4" />
+              </Link>
+            </Button>
+            <Button variant="ghost" size="icon-sm" asChild>
+              <Link href={`/blog/${row.original.id}/edit`}>
+                <Pencil className="h-4 w-4" />
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="text-destructive"
+              onClick={() => setDeleteTarget(row.original)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    [setDeleteTarget]
+  );
 
   return (
     <div>

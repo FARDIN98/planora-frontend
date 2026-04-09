@@ -73,7 +73,12 @@ export function useJoinEvent() {
       }),
     onSuccess: (data) => {
       if (data.requiresPayment && data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
+        const url = new URL(data.checkoutUrl);
+        if (url.hostname.endsWith('stripe.com')) {
+          window.location.href = data.checkoutUrl;
+        } else {
+          throw new Error('Invalid checkout URL');
+        }
         return;
       }
       queryClient.invalidateQueries({ queryKey: registrationKeys.all });

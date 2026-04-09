@@ -32,7 +32,8 @@ const TOKEN_KEY = "token";
 const COOKIE_MAX_AGE = 7 * 24 * 60 * 60; // 7 days — matches JWT expiry
 
 function setTokenCookie(token: string) {
-  document.cookie = `token=${token}; path=/; max-age=${COOKIE_MAX_AGE}; samesite=lax`;
+  const secure = typeof window !== 'undefined' && window.location.protocol === 'https:' ? '; secure' : '';
+  document.cookie = `token=${token}; path=/; max-age=${COOKIE_MAX_AGE}; samesite=lax${secure}`;
 }
 
 function clearTokenCookie() {

@@ -7,13 +7,27 @@ import {
   Activity,
   TrendingUp,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAdminOverview, useAdminChartData } from "@/hooks/use-dashboard";
-import { EventsOverTimeChart } from "@/components/charts/events-over-time";
-import { RevenueOverviewChart } from "@/components/charts/revenue-overview";
-import { EventTypePieChart } from "@/components/charts/event-type-pie";
-import { UserRegistrationsChart } from "@/components/charts/user-registrations";
+
+const EventsOverTimeChart = dynamic(
+  () => import("@/components/charts/events-over-time").then((m) => ({ default: m.EventsOverTimeChart })),
+  { ssr: false, loading: () => <Skeleton className="h-[300px] w-full" /> }
+);
+const RevenueOverviewChart = dynamic(
+  () => import("@/components/charts/revenue-overview").then((m) => ({ default: m.RevenueOverviewChart })),
+  { ssr: false, loading: () => <Skeleton className="h-[300px] w-full" /> }
+);
+const EventTypePieChart = dynamic(
+  () => import("@/components/charts/event-type-pie").then((m) => ({ default: m.EventTypePieChart })),
+  { ssr: false, loading: () => <Skeleton className="h-[300px] w-full" /> }
+);
+const UserRegistrationsChart = dynamic(
+  () => import("@/components/charts/user-registrations").then((m) => ({ default: m.UserRegistrationsChart })),
+  { ssr: false, loading: () => <Skeleton className="h-[300px] w-full" /> }
+);
 
 interface StatCardProps {
   label: string;

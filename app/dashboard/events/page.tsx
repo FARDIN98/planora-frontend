@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Plus, Pencil, Trash2, CalendarDays, Users, Loader2 } from "lucide-react";
 import { useMyEvents, useDeleteEvent } from "@/hooks/use-events";
@@ -58,84 +58,87 @@ export default function MyEventsPage() {
     });
   };
 
-  const columns: ColumnDef<Event, unknown>[] = [
-    {
-      accessorKey: "title",
-      header: "Title",
-      cell: ({ row }) => (
-        <Link
-          href={`/events/${row.original.id}`}
-          className="font-medium hover:underline"
-        >
-          {row.original.title}
-        </Link>
-      ),
-    },
-    {
-      accessorKey: "date",
-      header: "Date",
-      cell: ({ row }) =>
-        new Date(row.original.date).toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        }),
-    },
-    {
-      accessorKey: "type",
-      header: "Type",
-      cell: ({ row }) => (
-        <Badge variant={row.original.type === "FREE" ? "secondary" : "default"}>
-          {row.original.type}
-        </Badge>
-      ),
-    },
-    {
-      accessorKey: "visibility",
-      header: "Visibility",
-      cell: ({ row }) => (
-        <Badge variant="outline">{row.original.visibility}</Badge>
-      ),
-    },
-    {
-      id: "participants",
-      header: "Participants",
-      cell: ({ row }) => (
-        <span className="flex items-center gap-1">
-          <Users className="h-4 w-4 text-muted-foreground" />
-          {row.original._count?.registrations ?? 0}
-        </span>
-      ),
-    },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon-sm" asChild>
-            <Link href={`/dashboard/events/${row.original.id}/edit`}>
-              <Pencil className="h-4 w-4" />
-            </Link>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="text-destructive"
-            onClick={() => setDeleteTarget(row.original)}
+  const columns: ColumnDef<Event, unknown>[] = useMemo(
+    () => [
+      {
+        accessorKey: "title",
+        header: "Title",
+        cell: ({ row }) => (
+          <Link
+            href={`/events/${row.original.id}`}
+            className="font-medium hover:underline"
           >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setManageEventId(row.original.id)}
-          >
-            Manage
-          </Button>
-        </div>
-      ),
-    },
-  ];
+            {row.original.title}
+          </Link>
+        ),
+      },
+      {
+        accessorKey: "date",
+        header: "Date",
+        cell: ({ row }) =>
+          new Date(row.original.date).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          }),
+      },
+      {
+        accessorKey: "type",
+        header: "Type",
+        cell: ({ row }) => (
+          <Badge variant={row.original.type === "FREE" ? "secondary" : "default"}>
+            {row.original.type}
+          </Badge>
+        ),
+      },
+      {
+        accessorKey: "visibility",
+        header: "Visibility",
+        cell: ({ row }) => (
+          <Badge variant="outline">{row.original.visibility}</Badge>
+        ),
+      },
+      {
+        id: "participants",
+        header: "Participants",
+        cell: ({ row }) => (
+          <span className="flex items-center gap-1">
+            <Users className="h-4 w-4 text-muted-foreground" />
+            {row.original._count?.registrations ?? 0}
+          </span>
+        ),
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }) => (
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon-sm" asChild>
+              <Link href={`/dashboard/events/${row.original.id}/edit`}>
+                <Pencil className="h-4 w-4" />
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="text-destructive"
+              onClick={() => setDeleteTarget(row.original)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setManageEventId(row.original.id)}
+            >
+              Manage
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    [setDeleteTarget, setManageEventId]
+  );
 
   return (
     <div>

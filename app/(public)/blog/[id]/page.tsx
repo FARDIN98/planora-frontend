@@ -4,10 +4,15 @@ import { use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Edit, Trash2 } from "lucide-react";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BlogEditor } from "@/components/blog/blog-editor";
+
+const BlogEditor = dynamic(
+  () => import("@/components/blog/blog-editor").then((m) => ({ default: m.BlogEditor })),
+  { ssr: false, loading: () => <Skeleton className="h-64 w-full" /> }
+);
 import { useBlogPost, useDeleteBlogPost } from "@/hooks/use-blog";
 import { useAuth } from "@/lib/auth";
 import {
@@ -34,7 +39,7 @@ export default function BlogPostPage({
   const deleteMutation = useDeleteBlogPost();
 
   const isAuthor = user && post?.author && (user.id === (post.author as { id?: string }).id);
-  const isAdmin = user?.role === "ADMIN";
+  const isAdmin = user?.role === "admin";
   const canModify = isAuthor || isAdmin;
 
   function handleDelete() {

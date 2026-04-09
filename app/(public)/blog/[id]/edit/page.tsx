@@ -19,7 +19,7 @@ export default function BlogEditPage({
   const updateMutation = useUpdateBlogPost();
 
   const isAuthor = user && post?.author && (user.id === (post.author as { id?: string }).id);
-  const isAdmin = user?.role === "ADMIN";
+  const isAdmin = user?.role === "admin";
   const canEdit = isAuthor || isAdmin;
 
   // Redirect unauthenticated users

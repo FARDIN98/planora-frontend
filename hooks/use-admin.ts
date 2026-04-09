@@ -9,7 +9,7 @@ export function useAdminUsers(params?: { limit?: number; offset?: number }) {
   return useQuery({
     queryKey: ["admin", "users", params],
     queryFn: () =>
-      apiFetch<{ users: any[]; total: number }>(
+      apiFetch<{ users: Record<string, unknown>[]; total: number }>(
         `/api/v1/admin/users?limit=${params?.limit ?? 20}&offset=${params?.offset ?? 0}`
       ),
   });
