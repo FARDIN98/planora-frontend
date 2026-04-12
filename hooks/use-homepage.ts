@@ -24,7 +24,7 @@ export interface HomepageData {
   topOrganizers: {
     id: string;
     name: string;
-    _count: { events: number };
+    eventCount: number;
   }[];
   testimonials: {
     id: string;
