@@ -23,9 +23,8 @@ import { useAdminBlogPosts, useAdminDeleteBlogPost } from "@/hooks/use-admin";
 interface BlogPost {
   id: string;
   title: string;
-  slug: string;
   author: { id: string; name: string };
-  tags: string[];
+  tags: string;
   published: boolean;
   createdAt: string;
 }
@@ -55,7 +54,7 @@ export default function AdminBlogPage() {
         header: "Title",
         cell: ({ row }) => (
           <Link
-            href={`/blog/${row.original.slug}`}
+            href={`/blog/${row.original.id}`}
             className="font-medium hover:underline"
           >
             {row.original.title}
@@ -77,7 +76,9 @@ export default function AdminBlogPage() {
         accessorKey: "tags",
         header: "Tags",
         cell: ({ row }) => {
-          const tags = row.original.tags ?? [];
+          const tags = row.original.tags
+            ? row.original.tags.split(",").map((t) => t.trim()).filter(Boolean)
+            : [];
           const visible = tags.slice(0, 3);
           const remaining = tags.length - 3;
           return (
@@ -120,7 +121,7 @@ export default function AdminBlogPage() {
                 className="min-h-11 min-w-11"
                 asChild
               >
-                <Link href={`/blog/${post.slug}/edit`}>
+                <Link href={`/blog/${post.id}/edit`}>
                   <Pencil className="h-4 w-4" />
                 </Link>
               </Button>

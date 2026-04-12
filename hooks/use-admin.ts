@@ -123,10 +123,9 @@ export function useAdminUnsetFeatured() {
 interface BlogPost {
   id: string;
   title: string;
-  slug: string;
   content: string;
   author: { id: string; name: string };
-  tags: string[];
+  tags: string;
   published: boolean;
   createdAt: string;
   updatedAt: string;

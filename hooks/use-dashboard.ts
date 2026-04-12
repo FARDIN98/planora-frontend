@@ -24,7 +24,7 @@ export interface AdminOverview {
 export interface AdminChartData {
   eventsOverTime: { month: string; count: number }[];
   revenueOverview: { month: string; revenue: number }[];
-  eventTypeDistribution: { type: string; count: number }[];
+  eventTypeDistribution: { name: string; count: number }[];
   userRegistrations: { month: string; count: number }[];
 }
 

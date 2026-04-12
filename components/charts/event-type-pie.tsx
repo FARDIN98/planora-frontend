@@ -24,7 +24,7 @@ const COLORS = [
 ];
 
 interface EventTypePieProps {
-  data: { type: string; count: number }[];
+  data: { name: string; count: number }[];
 }
 
 export function EventTypePieChart({ data }: EventTypePieProps) {
@@ -39,7 +39,7 @@ export function EventTypePieChart({ data }: EventTypePieProps) {
             <Pie
               data={data}
               dataKey="count"
-              nameKey="type"
+              nameKey="name"
               cx="50%"
               cy="50%"
               outerRadius={100}
