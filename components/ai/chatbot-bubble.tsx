@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from "react";
 import { MessageCircle, X, SendHorizontal, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useChatbot } from "@/hooks/use-chatbot";
 import { cn } from "@/lib/utils";
 
@@ -70,7 +69,7 @@ export function ChatbotBubble() {
         {/* Chat window */}
         <div
           className={cn(
-            "absolute bottom-16 right-0 w-[340px] sm:w-[380px] h-[480px] rounded-2xl shadow-2xl flex flex-col origin-bottom-right transition-all duration-200 overflow-hidden",
+            "absolute bottom-16 right-0 w-[340px] sm:w-[380px] h-[480px] max-h-[calc(100dvh-7rem)] rounded-2xl shadow-2xl flex flex-col origin-bottom-right transition-all duration-200 overflow-hidden",
             "bg-background border border-border",
             isOpen
               ? "scale-100 opacity-100 pointer-events-auto"
@@ -99,7 +98,7 @@ export function ChatbotBubble() {
           </div>
 
           {/* Messages area */}
-          <ScrollArea className="flex-1 px-4 py-3">
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 py-3">
             <div className="flex flex-col gap-3">
               {messages.map((msg, i) => (
                 <div
@@ -116,7 +115,7 @@ export function ChatbotBubble() {
                   )}
                   <div
                     className={cn(
-                      "rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed max-w-[80%] whitespace-pre-wrap",
+                      "rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed max-w-[80%] whitespace-pre-wrap break-words",
                       msg.role === "user"
                         ? "bg-primary text-primary-foreground rounded-tr-sm"
                         : "bg-muted rounded-tl-sm"
@@ -129,7 +128,7 @@ export function ChatbotBubble() {
               {isLoading && <TypingIndicator />}
               <div ref={messagesEndRef} />
             </div>
-          </ScrollArea>
+          </div>
 
           {/* Input area */}
           <div className="px-3 py-3 border-t bg-background flex gap-2 shrink-0">
