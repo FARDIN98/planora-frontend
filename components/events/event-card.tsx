@@ -1,83 +1,92 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { CalendarDays, MapPin, Star, Users } from "lucide-react";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardFooter,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface EventCardProps {
   event: {
     id: string;
     title: string;
+    description?: string;
     date: string;
-    time: string;
-    venue: string;
+    venue?: string;
+    visibility: string;
     type: string;
     fee: number;
-    visibility: string;
-    organizer: { name: string };
-    _count?: { registrations: number };
-    averageRating?: number;
+    imageUrl?: string;
+    organizer?: { name: string };
   };
 }
 
 export function EventCard({ event }: EventCardProps) {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   const formattedDate = new Date(event.date).toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
   });
 
+  const feeDisplay = event.type === "FREE" ? "Free" : `$${event.fee}`;
+
   return (
-    <Link href={`/events/${event.id}`}>
-      <Card className="h-full transition-shadow duration-200 hover:shadow-lg hover:scale-[1.02]">
-        <CardHeader>
-          <div className="flex items-start justify-between gap-2">
-            <CardTitle className="font-semibold line-clamp-2">
-              {event.title}
-            </CardTitle>
-            <Badge
-              variant={event.type === "FREE" ? "secondary" : "default"}
-              className="shrink-0"
-            >
-              {event.type === "FREE" ? "FREE" : `৳${event.fee}`}
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <CalendarDays className="h-4 w-4 shrink-0" />
-            <span>
-              {formattedDate} at {event.time}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <MapPin className="h-4 w-4 shrink-0" />
-            <span className="line-clamp-1">{event.venue}</span>
-          </div>
-        </CardContent>
-        <CardFooter className="text-sm text-muted-foreground justify-between">
-          <span>by {event.organizer.name}</span>
-          <div className="flex items-center gap-3">
-            {event.averageRating != null && event.averageRating > 0 && (
-              <div className="flex items-center gap-1">
-                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                <span>{event.averageRating.toFixed(1)}</span>
-              </div>
-            )}
-            <div className="flex items-center gap-1">
-              <Users className="h-3.5 w-3.5" />
-              <span>{event._count?.registrations ?? 0}</span>
-            </div>
-          </div>
-        </CardFooter>
-      </Card>
-    </Link>
+    <Card className="overflow-hidden group transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5">
+      {/* Image Area */}
+      <div className="relative aspect-video overflow-hidden">
+        {!imageLoaded && (
+          <Skeleton className="absolute inset-0" />
+        )}
+        <img
+          src={event.imageUrl || "/placeholder-event.svg"}
+          alt={event.title}
+          className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+          onLoad={() => setImageLoaded(true)}
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = "/placeholder-event.svg";
+            setImageLoaded(true);
+          }}
+        />
+      </div>
+
+      {/* Content Area */}
+      <CardContent className="p-4 space-y-2">
+        <CardTitle className="text-base font-semibold line-clamp-1">
+          {event.title}
+        </CardTitle>
+        {event.description && (
+          <p className="text-sm text-muted-foreground line-clamp-2">
+            {event.description}
+          </p>
+        )}
+        {/* Meta Badges */}
+        <div className="flex flex-wrap gap-1.5">
+          <Badge variant="outline">{formattedDate}</Badge>
+          <Badge
+            variant="secondary"
+            className={
+              event.type === "PAID"
+                ? "bg-accent text-accent-foreground"
+                : ""
+            }
+          >
+            {feeDisplay}
+          </Badge>
+          <Badge variant="outline">
+            {event.visibility} {event.type}
+          </Badge>
+        </div>
+      </CardContent>
+
+      {/* Footer */}
+      <CardFooter className="p-4 pt-0">
+        <Button className="w-full" variant="secondary" asChild>
+          <Link href={`/events/${event.id}`}>View Details</Link>
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }

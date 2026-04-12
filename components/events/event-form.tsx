@@ -17,6 +17,7 @@ import {
 export interface EventFormData {
   title: string;
   description: string;
+  imageUrl?: string;
   date: string;
   time: string;
   venue: string;
@@ -41,6 +42,7 @@ export function EventForm({
   const [description, setDescription] = useState(
     initialData?.description ?? ""
   );
+  const [imageUrl, setImageUrl] = useState(initialData?.imageUrl ?? "");
   const [date, setDate] = useState(initialData?.date ?? "");
   const [time, setTime] = useState(initialData?.time ?? "");
   const [venue, setVenue] = useState(initialData?.venue ?? "");
@@ -55,6 +57,7 @@ export function EventForm({
     if (initialData) {
       setTitle(initialData.title ?? "");
       setDescription(initialData.description ?? "");
+      setImageUrl(initialData.imageUrl ?? "");
       setDate(initialData.date ?? "");
       setTime(initialData.time ?? "");
       setVenue(initialData.venue ?? "");
@@ -172,6 +175,7 @@ export function EventForm({
     onSubmit({
       title,
       description,
+      imageUrl: imageUrl.trim() || undefined,
       date,
       time,
       venue,
@@ -210,6 +214,16 @@ export function EventForm({
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Describe your event..."
           rows={4}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="imageUrl">Image URL (optional)</Label>
+        <Input
+          id="imageUrl"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+          placeholder="https://images.unsplash.com/..."
         />
       </div>
 

@@ -49,9 +49,22 @@ export async function apiFetch<T>(
     ...options,
     headers,
   });
-  const json = await res.json();
+  let json: {
+    success?: boolean;
+    data?: T;
+    error?: { code?: string; message?: string; details?: ValidationDetail[] };
+  };
+  try {
+    json = await res.json();
+  } catch {
+    throw new ApiError(
+      res.status,
+      "PARSE_ERROR",
+      "Server returned an unexpected response",
+    );
+  }
   if (!json.success) {
-    const details = json.error?.details as ValidationDetail[] | undefined;
+    const details = json.error?.details;
     throw new ApiError(
       res.status,
       json.error?.code || "UNKNOWN",

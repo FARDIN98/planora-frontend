@@ -1,35 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
-import { Plus, MoreVertical, Pencil, Trash2, CalendarDays, Users } from "lucide-react";
+import { Plus, Pencil, Trash2, CalendarDays, Users, Loader2 } from "lucide-react";
 import { useMyEvents, useDeleteEvent } from "@/hooks/use-events";
-import { EventCardSkeleton } from "@/components/events/event-card-skeleton";
+import { DataTable } from "@/components/data-tables/data-table";
 import { EmptyState } from "@/components/shared/empty-state";
 import dynamic from "next/dynamic";
-
-const ManageParticipantsModal = dynamic(
-  () =>
-    import("@/components/events/manage-participants-modal").then((mod) => ({
-      default: mod.ManageParticipantsModal,
-    })),
-  { ssr: false }
-);
+import { type ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,22 +21,35 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+const ManageParticipantsModal = dynamic(
+  () =>
+    import("@/components/events/manage-participants-modal").then((mod) => ({
+      default: mod.ManageParticipantsModal,
+    })),
+  { ssr: false }
+);
+
 interface Event {
   id: string;
   title: string;
   date: string;
   time?: string;
   venue?: string;
+  type: string;
+  visibility: string;
+  fee: number;
   _count?: { registrations?: number };
 }
 
 export default function MyEventsPage() {
-  const { data, isLoading } = useMyEvents();
+  const [page, setPage] = useState(1);
+  const { data, isLoading } = useMyEvents({ page, limit: 10 });
   const deleteEvent = useDeleteEvent();
   const [deleteTarget, setDeleteTarget] = useState<Event | null>(null);
   const [manageEventId, setManageEventId] = useState<string | null>(null);
 
   const events = (data?.events ?? []) as Event[];
+  const totalPages = data?.totalPages ?? 1;
 
   const handleDelete = () => {
     if (!deleteTarget) return;
@@ -65,9 +58,91 @@ export default function MyEventsPage() {
     });
   };
 
+  const columns: ColumnDef<Event, unknown>[] = useMemo(
+    () => [
+      {
+        accessorKey: "title",
+        header: "Title",
+        cell: ({ row }) => (
+          <Link
+            href={`/events/${row.original.id}`}
+            className="font-medium hover:underline"
+          >
+            {row.original.title}
+          </Link>
+        ),
+      },
+      {
+        accessorKey: "date",
+        header: "Date",
+        cell: ({ row }) =>
+          new Date(row.original.date).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          }),
+      },
+      {
+        accessorKey: "type",
+        header: "Type",
+        cell: ({ row }) => (
+          <Badge variant={row.original.type === "FREE" ? "secondary" : "default"}>
+            {row.original.type}
+          </Badge>
+        ),
+      },
+      {
+        accessorKey: "visibility",
+        header: "Visibility",
+        cell: ({ row }) => (
+          <Badge variant="outline">{row.original.visibility}</Badge>
+        ),
+      },
+      {
+        id: "participants",
+        header: "Participants",
+        cell: ({ row }) => (
+          <span className="flex items-center gap-1">
+            <Users className="h-4 w-4 text-muted-foreground" />
+            {row.original._count?.registrations ?? 0}
+          </span>
+        ),
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }) => (
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon-sm" asChild>
+              <Link href={`/dashboard/events/${row.original.id}/edit`}>
+                <Pencil className="h-4 w-4" />
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="text-destructive"
+              onClick={() => setDeleteTarget(row.original)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setManageEventId(row.original.id)}
+            >
+              Manage
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    [setDeleteTarget, setManageEventId]
+  );
+
   return (
     <div>
-      <header className="flex items-center justify-between">
+      <header className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-semibold tracking-tight">My Events</h1>
         <Link href="/dashboard/events/create">
           <Button>
@@ -77,13 +152,7 @@ export default function MyEventsPage() {
         </Link>
       </header>
 
-      {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-          {[1, 2, 3, 4].map((i) => (
-            <EventCardSkeleton key={i} />
-          ))}
-        </div>
-      ) : events.length === 0 ? (
+      {!isLoading && events.length === 0 ? (
         <EmptyState
           icon={CalendarDays}
           heading="No events yet"
@@ -92,67 +161,14 @@ export default function MyEventsPage() {
           ctaHref="/dashboard/events/create"
         />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-          {events.map((event) => (
-            <Card key={event.id}>
-              <CardHeader className="flex flex-row items-start justify-between space-y-0">
-                <CardTitle className="text-base font-semibold line-clamp-2">
-                  {event.title}
-                </CardTitle>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon-sm">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <Link href={`/dashboard/events/${event.id}/edit`}>
-                        <Pencil className="h-4 w-4 mr-2" />
-                        Edit
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="text-destructive"
-                      onClick={() => setDeleteTarget(event)}
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <CalendarDays className="h-4 w-4" />
-                  <span>
-                    {new Date(event.date).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                  <Users className="h-4 w-4" />
-                  <span>
-                    {event._count?.registrations ?? 0} attendees
-                  </span>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={() => setManageEventId(event.id)}
-                >
-                  Manage
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+        <DataTable
+          columns={columns}
+          data={events}
+          pageCount={totalPages}
+          page={page}
+          onPageChange={setPage}
+          isLoading={isLoading}
+        />
       )}
 
       <AlertDialog

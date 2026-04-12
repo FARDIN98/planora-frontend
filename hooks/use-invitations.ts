@@ -73,7 +73,12 @@ export function useRespondInvitation() {
     onSuccess: (data, variables) => {
       const res = data as { checkoutUrl?: string; requiresPayment?: boolean };
       if (res.requiresPayment && res.checkoutUrl) {
-        window.location.href = res.checkoutUrl;
+        const url = new URL(res.checkoutUrl);
+        if (url.hostname.endsWith('stripe.com')) {
+          window.location.href = res.checkoutUrl;
+        } else {
+          throw new Error('Invalid checkout URL');
+        }
         return;
       }
       queryClient.invalidateQueries({ queryKey: invitationKeys.all });

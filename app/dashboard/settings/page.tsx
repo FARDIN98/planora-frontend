@@ -95,8 +95,8 @@ export default function SettingsPage() {
       );
       setToken(result.accessToken);
       toast.success("Profile updated");
-    } catch (err: any) {
-      toast.error(err?.message || "Something went wrong. Please try again.");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setIsUpdating(false);
     }

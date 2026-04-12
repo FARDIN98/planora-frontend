@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calendar, Mail, MessageSquare, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, Calendar, Mail, MessageSquare, FileText, Settings, LogOut } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,9 +18,11 @@ import {
 } from "@/components/ui/sidebar";
 
 const navItems = [
+  { label: "Overview", href: "/dashboard", icon: LayoutDashboard, exact: true },
   { label: "My Events", href: "/dashboard/events", icon: Calendar },
   { label: "Invitations", href: "/dashboard/invitations", icon: Mail },
   { label: "My Reviews", href: "/dashboard/reviews", icon: MessageSquare },
+  { label: "Blog Posts", href: "/dashboard/blog", icon: FileText },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
@@ -50,7 +52,7 @@ export function DashboardSidebar() {
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
-                    isActive={pathname.startsWith(item.href)}
+                    isActive={item.exact ? pathname === item.href : pathname.startsWith(item.href)}
                     tooltip={item.label}
                   >
                     <Link href={item.href}>

@@ -3,17 +3,17 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { CalendarDays, Loader2, Mail } from "lucide-react";
+import { Mail, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/shared/empty-state";
 import {
   useMyInvitations,
   useRespondInvitation,
 } from "@/hooks/use-invitations";
+import { DataTable } from "@/components/data-tables/data-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface Invitation {
   id: string;
@@ -36,11 +36,11 @@ interface Invitation {
 
 export default function InvitationsPage() {
   const searchParams = useSearchParams();
-  const { data, isLoading } = useMyInvitations();
+  const [page, setPage] = useState(1);
+  const { data, isLoading } = useMyInvitations({ page, limit: 10 });
   const respondInvitation = useRespondInvitation();
   const [processingId, setProcessingId] = useState<string | null>(null);
 
-  // Handle Stripe payment redirect
   useEffect(() => {
     const payment = searchParams.get("payment");
     if (payment === "success") {
@@ -51,6 +51,7 @@ export default function InvitationsPage() {
   }, [searchParams]);
 
   const invitations = (data?.invitations ?? []) as Invitation[];
+  const totalPages = data?.totalPages ?? 1;
 
   const handleRespond = async (
     invitationId: string,
@@ -64,24 +65,86 @@ export default function InvitationsPage() {
     }
   };
 
+  const getStatusBadge = (invitation: Invitation) => {
+    if (invitation.status === "PENDING") return <Badge variant="outline">PENDING</Badge>;
+    if (invitation.status === "DECLINED") return <Badge variant="secondary">DECLINED</Badge>;
+    if (invitation.registration?.status === "APPROVED") return <Badge variant="default">ACCEPTED</Badge>;
+    return <Badge variant="outline">Pending Approval</Badge>;
+  };
+
+  const columns: ColumnDef<Invitation, unknown>[] = [
+    {
+      accessorKey: "event.title",
+      header: "Event",
+      cell: ({ row }) => (
+        <Link
+          href={`/events/${row.original.event.id}`}
+          className="font-medium hover:underline"
+        >
+          {row.original.event.title}
+        </Link>
+      ),
+    },
+    {
+      accessorKey: "sender.name",
+      header: "Organizer",
+      cell: ({ row }) => row.original.sender.name,
+    },
+    {
+      accessorKey: "event.date",
+      header: "Date",
+      cell: ({ row }) =>
+        new Date(row.original.event.date).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => getStatusBadge(row.original),
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const inv = row.original;
+        if (inv.status !== "PENDING") return null;
+        const isProcessing = processingId === inv.id;
+        return (
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              onClick={() => handleRespond(inv.id, "accept")}
+              disabled={isProcessing}
+            >
+              {isProcessing && (
+                <Loader2 className="h-4 w-4 animate-spin mr-1" />
+              )}
+              {inv.event.type === "FREE" ? "Accept" : "Pay & Accept"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleRespond(inv.id, "decline")}
+              disabled={isProcessing}
+            >
+              Decline
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
+
   return (
     <div>
-      <h1 className="text-3xl font-semibold tracking-tight">Invitations</h1>
+      <h1 className="text-3xl font-semibold tracking-tight mb-6">
+        Invitations
+      </h1>
 
-      {isLoading ? (
-        <div className="space-y-4 mt-6">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="flex items-center gap-4 p-4 rounded-xl border">
-              <Skeleton className="h-10 w-10 rounded-full" />
-              <div className="flex-1 space-y-2">
-                <Skeleton className="h-4 w-[50%]" />
-                <Skeleton className="h-3 w-[30%]" />
-              </div>
-              <Skeleton className="h-9 w-20" />
-            </div>
-          ))}
-        </div>
-      ) : invitations.length === 0 ? (
+      {!isLoading && invitations.length === 0 ? (
         <EmptyState
           icon={Mail}
           heading="No pending invitations"
@@ -90,108 +153,14 @@ export default function InvitationsPage() {
           ctaHref="/events"
         />
       ) : (
-        <div className="space-y-4 mt-6">
-          {invitations.map((invitation) => (
-            <Card
-              key={invitation.id}
-              className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 gap-4"
-            >
-              <div className="space-y-1 min-w-0">
-                <Link
-                  href={`/events/${invitation.event.id}`}
-                  className="font-semibold hover:underline"
-                >
-                  {invitation.event.title}
-                </Link>
-                <p className="text-sm text-muted-foreground">
-                  Invited by {invitation.sender.name}
-                </p>
-                <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <CalendarDays className="h-4 w-4" />
-                    {new Date(invitation.event.date).toLocaleDateString(
-                      "en-US",
-                      {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      }
-                    )}
-                  </span>
-                  <Badge
-                    variant={
-                      invitation.event.type === "FREE"
-                        ? "secondary"
-                        : "default"
-                    }
-                  >
-                    {invitation.event.type === "FREE"
-                      ? "FREE"
-                      : `৳${invitation.event.fee}`}
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="flex flex-row gap-2 shrink-0">
-                {invitation.status === "PENDING" ? (
-                  <>
-                    {invitation.event.type === "FREE" ? (
-                      <Button
-                        onClick={() => handleRespond(invitation.id, "accept")}
-                        disabled={processingId === invitation.id}
-                        className="min-h-11"
-                      >
-                        {processingId === invitation.id && (
-                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        )}
-                        {processingId === invitation.id
-                          ? "Accepting..."
-                          : "Accept"}
-                      </Button>
-                    ) : (
-                      <Button
-                        onClick={() => handleRespond(invitation.id, "accept")}
-                        disabled={processingId === invitation.id}
-                        className="min-h-11"
-                      >
-                        {processingId === invitation.id && (
-                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        )}
-                        {processingId === invitation.id
-                          ? "Processing..."
-                          : "Pay & Accept"}
-                      </Button>
-                    )}
-                    <Button
-                      variant="outline"
-                      className="min-h-11"
-                      onClick={() => handleRespond(invitation.id, "decline")}
-                      disabled={processingId === invitation.id}
-                    >
-                      Decline
-                    </Button>
-                  </>
-                ) : (
-                  <Badge
-                    variant={
-                      invitation.registration?.status === "APPROVED"
-                        ? "default"
-                        : invitation.status === "DECLINED"
-                          ? "secondary"
-                          : "outline"
-                    }
-                  >
-                    {invitation.status === "DECLINED"
-                      ? "Declined"
-                      : invitation.registration?.status === "APPROVED"
-                        ? "Accepted"
-                        : "Pending Approval"}
-                  </Badge>
-                )}
-              </div>
-            </Card>
-          ))}
-        </div>
+        <DataTable
+          columns={columns}
+          data={invitations}
+          pageCount={totalPages}
+          page={page}
+          onPageChange={setPage}
+          isLoading={isLoading}
+        />
       )}
     </div>
   );

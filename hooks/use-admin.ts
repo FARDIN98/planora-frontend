@@ -9,7 +9,7 @@ export function useAdminUsers(params?: { limit?: number; offset?: number }) {
   return useQuery({
     queryKey: ["admin", "users", params],
     queryFn: () =>
-      apiFetch<{ users: any[]; total: number }>(
+      apiFetch<{ users: Record<string, unknown>[]; total: number }>(
         `/api/v1/admin/users?limit=${params?.limit ?? 20}&offset=${params?.offset ?? 0}`
       ),
   });
@@ -115,5 +115,78 @@ export function useAdminUnsetFeatured() {
     onError: (error: Error) => {
       toast.error(error.message);
     },
+  });
+}
+
+// --- Blog moderation hooks ---
+
+interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  author: { id: string; name: string };
+  tags: string[];
+  published: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface BlogPostsResponse {
+  posts: BlogPost[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export function useAdminBlogPosts(page = 1, limit = 10) {
+  return useQuery({
+    queryKey: ["admin", "blog", page, limit],
+    queryFn: () =>
+      apiFetch<BlogPostsResponse>(
+        `/api/v1/admin/blog?page=${page}&limit=${limit}`
+      ),
+  });
+}
+
+export function useAdminDeleteBlogPost() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      apiFetch<unknown>(`/api/v1/admin/blog/${id}`, { method: "DELETE" }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "blog"] });
+      toast.success("Blog post deleted");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+}
+
+// --- Newsletter hooks ---
+
+interface Subscriber {
+  id: string;
+  email: string;
+  createdAt: string;
+}
+
+interface SubscribersResponse {
+  subscribers: Subscriber[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export function useNewsletterSubscribers(page = 1, limit = 10) {
+  return useQuery({
+    queryKey: ["admin", "newsletter", page, limit],
+    queryFn: () =>
+      apiFetch<SubscribersResponse>(
+        `/api/v1/newsletter/subscribers?page=${page}&limit=${limit}`
+      ),
   });
 }

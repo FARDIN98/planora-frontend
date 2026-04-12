@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useMemo, useRef, Suspense } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { Search, X } from "lucide-react";
+import { Search, X, CalendarDays } from "lucide-react";
 import { EventCardSkeleton } from "@/components/events/event-card-skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
+import { EventFilters } from "@/components/events/event-filters";
+import { EventSort } from "@/components/events/event-sort";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Pagination,
   PaginationContent,
@@ -20,20 +20,29 @@ import {
 import { EventCard } from "@/components/events/event-card";
 import { StaggeredGrid, StaggeredItem } from "@/components/shared/staggered-grid";
 import { useEvents } from "@/hooks/use-events";
+import { apiFetch } from "@/lib/api";
 
 type EventCardEvent = {
   id: string;
   title: string;
+  description?: string;
   date: string;
   time: string;
   venue: string;
   type: string;
   fee: number;
   visibility: string;
+  imageUrl?: string;
   organizer: { name: string };
   _count?: { registrations: number };
   averageRating?: number;
 };
+
+interface SuggestionEvent {
+  id: string;
+  title: string;
+  date: string;
+}
 
 const LIMIT = 12;
 
@@ -42,8 +51,8 @@ export default function EventsDiscoveryPage() {
     <Suspense fallback={
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="h-10 w-48 bg-muted animate-pulse rounded-md" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-          {Array.from({ length: LIMIT }).map((_, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+          {Array.from({ length: 8 }).map((_, i) => (
             <EventCardSkeleton key={i} />
           ))}
         </div>
@@ -54,10 +63,21 @@ export default function EventsDiscoveryPage() {
   );
 }
 
+// Fuzzy search scoring: exact match = 3, startsWith = 2, includes = 1
+function fuzzyScore(query: string, title: string): number {
+  const q = query.toLowerCase();
+  const t = title.toLowerCase();
+  if (t === q) return 3;
+  if (t.startsWith(q)) return 2;
+  if (t.includes(q)) return 1;
+  return 0;
+}
+
 function EventsDiscoveryContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Read initial state from URL search params
   const [searchInput, setSearchInput] = useState(
@@ -66,67 +86,150 @@ function EventsDiscoveryContent() {
   const [debouncedSearch, setDebouncedSearch] = useState(
     searchParams.get("search") || ""
   );
-  const [visibility, setVisibility] = useState<string | null>(
-    searchParams.get("visibility")
-  );
-  const [type, setType] = useState<string | null>(searchParams.get("type"));
   const [page, setPage] = useState(
     Number(searchParams.get("page")) || 1
   );
+  const [sortBy, setSortBy] = useState(
+    searchParams.get("sortBy") || "date_newest"
+  );
+
+  // Filter state
+  const [filters, setFilters] = useState({
+    category: searchParams.get("category") || "all",
+    dateFrom: searchParams.get("dateFrom") || "",
+    dateTo: searchParams.get("dateTo") || "",
+    priceMin: searchParams.get("priceMin") || "",
+    priceMax: searchParams.get("priceMax") || "",
+    venue: searchParams.get("venue") || "",
+  });
+
+  // AI search suggestions state
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [allEvents, setAllEvents] = useState<SuggestionEvent[]>([]);
+  const [suggestionsLoaded, setSuggestionsLoaded] = useState(false);
 
   // Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchInput);
-      setPage(1); // Reset to page 1 on new search
-    }, 300);
+      setPage(1);
+    }, 200);
     return () => clearTimeout(timer);
   }, [searchInput]);
+
+  // Load all event titles for fuzzy search suggestions
+  useEffect(() => {
+    if (suggestionsLoaded) return;
+    apiFetch<{ events: SuggestionEvent[] }>("/api/v1/events?limit=50")
+      .then((data) => {
+        setAllEvents(data.events);
+        setSuggestionsLoaded(true);
+      })
+      .catch(() => {
+        // Silently fail - suggestions are optional
+      });
+  }, [suggestionsLoaded]);
+
+  // Compute suggestions based on search input
+  const suggestions = useMemo(() => {
+    if (searchInput.length < 2) return [];
+    return allEvents
+      .map((event) => ({
+        ...event,
+        score: fuzzyScore(searchInput, event.title),
+      }))
+      .filter((e) => e.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 6);
+  }, [searchInput, allEvents]);
+
+  // Parse sort value into sortBy + sortOrder for the API
+  function parseSortValue(value: string) {
+    switch (value) {
+      case "date_newest":
+        return { sortBy: "date", sortOrder: "desc" };
+      case "date_oldest":
+        return { sortBy: "date", sortOrder: "asc" };
+      case "price_low":
+        return { sortBy: "fee", sortOrder: "asc" };
+      case "popular":
+        return { sortBy: "createdAt", sortOrder: "desc" };
+      default:
+        return { sortBy: "date", sortOrder: "desc" };
+    }
+  }
+
+  // Parse category filter into visibility + type
+  function parseCategoryFilter(category: string) {
+    if (category === "all") return { visibility: undefined, type: undefined };
+    const parts = category.split("_");
+    return {
+      visibility: parts[0] as string,
+      type: parts[1] as string,
+    };
+  }
 
   // Sync filters to URL search params
   useEffect(() => {
     const params = new URLSearchParams();
     if (debouncedSearch) params.set("search", debouncedSearch);
-    if (visibility) params.set("visibility", visibility);
-    if (type) params.set("type", type);
+    if (filters.category !== "all") params.set("category", filters.category);
+    if (filters.dateFrom) params.set("dateFrom", filters.dateFrom);
+    if (filters.dateTo) params.set("dateTo", filters.dateTo);
+    if (filters.priceMin) params.set("priceMin", filters.priceMin);
+    if (filters.priceMax) params.set("priceMax", filters.priceMax);
+    if (filters.venue) params.set("venue", filters.venue);
+    if (sortBy !== "date_newest") params.set("sortBy", sortBy);
     if (page > 1) params.set("page", String(page));
 
     const qs = params.toString();
     router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
-  }, [debouncedSearch, visibility, type, page, pathname, router]);
+  }, [debouncedSearch, filters, sortBy, page, pathname, router]);
+
+  const { visibility: filterVisibility, type: filterType } = parseCategoryFilter(filters.category);
+  const { sortBy: apiSortBy, sortOrder: apiSortOrder } = parseSortValue(sortBy);
 
   const { data, isLoading } = useEvents({
     page,
     limit: LIMIT,
     search: debouncedSearch || undefined,
-    visibility: visibility || undefined,
-    type: type || undefined,
+    visibility: filterVisibility,
+    type: filterType,
+    dateFrom: filters.dateFrom || undefined,
+    dateTo: filters.dateTo || undefined,
+    priceMin: filters.priceMin ? Number(filters.priceMin) : undefined,
+    priceMax: filters.priceMax ? Number(filters.priceMax) : undefined,
+    venue: filters.venue || undefined,
+    sortBy: apiSortBy,
+    sortOrder: apiSortOrder,
   });
 
   const events = (data?.events ?? []) as EventCardEvent[];
   const totalPages = data?.totalPages ?? 1;
+  const total = data?.total ?? 0;
 
-  function handleClearFilters() {
+  function handleFilterChange(newFilters: typeof filters) {
+    setFilters(newFilters);
+    setPage(1);
+  }
+
+  function handleSortChange(value: string) {
+    setSortBy(value);
+    setPage(1);
+  }
+
+  function handleClearAll() {
     setSearchInput("");
     setDebouncedSearch("");
-    setVisibility(null);
-    setType(null);
-    setPage(1);
-  }
-
-  function toggleVisibility(value: string) {
-    setVisibility((prev) => (prev === value ? null : value));
-    setPage(1);
-  }
-
-  function toggleType(value: string) {
-    setType((prev) => (prev === value ? null : value));
-    setPage(1);
-  }
-
-  function handleAllClick() {
-    setVisibility(null);
-    setType(null);
+    setFilters({
+      category: "all",
+      dateFrom: "",
+      dateTo: "",
+      priceMin: "",
+      priceMax: "",
+      venue: "",
+    });
+    setSortBy("date_newest");
     setPage(1);
   }
 
@@ -135,7 +238,12 @@ function EventsDiscoveryContent() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  const isAllActive = !visibility && !type;
+  function handleSuggestionClick(title: string) {
+    setSearchInput(title);
+    setDebouncedSearch(title);
+    setShowSuggestions(false);
+    setPage(1);
+  }
 
   // Build page numbers for pagination
   function getPageNumbers(): (number | "ellipsis")[] {
@@ -160,14 +268,26 @@ function EventsDiscoveryContent() {
         <h1 className="text-3xl font-semibold tracking-tight">
           Discover Events
         </h1>
+        <p className="text-muted-foreground mt-1">
+          Find and join events that match your interests
+        </p>
       </header>
 
-      {/* Search Bar */}
+      {/* Search Bar with AI Suggestions */}
       <div className="relative mt-6">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
+          ref={searchInputRef}
           value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
+          onChange={(e) => {
+            setSearchInput(e.target.value);
+            setShowSuggestions(true);
+          }}
+          onFocus={() => setShowSuggestions(true)}
+          onBlur={() => {
+            // Delay to allow click on suggestion
+            setTimeout(() => setShowSuggestions(false), 200);
+          }}
           placeholder="Search events by title or organizer..."
           className="pl-10 h-11"
         />
@@ -177,6 +297,7 @@ function EventsDiscoveryContent() {
             onClick={() => {
               setSearchInput("");
               setDebouncedSearch("");
+              setShowSuggestions(false);
             }}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
             aria-label="Clear search"
@@ -184,56 +305,60 @@ function EventsDiscoveryContent() {
             <X className="h-4 w-4" aria-hidden="true" />
           </button>
         )}
+
+        {/* AI Search Suggestions Dropdown */}
+        {showSuggestions && suggestions.length > 0 && (
+          <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-md overflow-hidden">
+            {suggestions.map((suggestion) => {
+              const formattedDate = new Date(suggestion.date).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              });
+              return (
+                <button
+                  key={suggestion.id}
+                  type="button"
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-muted transition-colors text-sm"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleSuggestionClick(suggestion.title);
+                  }}
+                >
+                  <CalendarDays className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{suggestion.title}</p>
+                    <p className="text-xs text-muted-foreground">{formattedDate}</p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
-      {/* Filter Chips */}
-      <div className="flex overflow-x-auto lg:flex-wrap gap-2 mt-4">
-        <Button
-          variant={isAllActive ? "default" : "secondary"}
-          size="sm" className="min-h-11 min-w-11"
-          onClick={handleAllClick}
-        >
-          All
-        </Button>
-        <Button
-          variant={visibility === "PUBLIC" ? "default" : "secondary"}
-          size="sm" className="min-h-11 min-w-11"
-          onClick={() => toggleVisibility("PUBLIC")}
-        >
-          Public
-        </Button>
-        <Button
-          variant={visibility === "PRIVATE" ? "default" : "secondary"}
-          size="sm" className="min-h-11 min-w-11"
-          onClick={() => toggleVisibility("PRIVATE")}
-        >
-          Private
-        </Button>
-        <Button
-          variant={type === "FREE" ? "default" : "secondary"}
-          size="sm" className="min-h-11 min-w-11"
-          onClick={() => toggleType("FREE")}
-        >
-          Free
-        </Button>
-        <Button
-          variant={type === "PAID" ? "default" : "secondary"}
-          size="sm" className="min-h-11 min-w-11"
-          onClick={() => toggleType("PAID")}
-        >
-          Paid
-        </Button>
+      {/* Filters */}
+      <div className="mt-4">
+        <EventFilters filters={filters} onFilterChange={handleFilterChange} />
+      </div>
+
+      {/* Sort + Result Count */}
+      <div className="flex items-center justify-between mt-6">
+        <p className="text-sm text-muted-foreground">
+          {isLoading ? "Loading..." : `${total} event${total !== 1 ? "s" : ""} found`}
+        </p>
+        <EventSort sortBy={sortBy} onSortChange={handleSortChange} />
       </div>
 
       {/* Results Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-          {Array.from({ length: LIMIT }).map((_, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+          {Array.from({ length: 8 }).map((_, i) => (
             <EventCardSkeleton key={i} />
           ))}
         </div>
       ) : events.length > 0 ? (
-        <StaggeredGrid className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+        <StaggeredGrid className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
           {events.map((event) => (
             <StaggeredItem key={event.id}>
               <EventCard event={event} />
@@ -245,16 +370,19 @@ function EventsDiscoveryContent() {
           <EmptyState
             icon={Search}
             heading="No events found"
-            body="No events match your filters. Try adjusting your search or clearing filters."
+            body="Try adjusting your filters or create a new event to get started."
             ctaLabel="Clear Filters"
-            onCtaClick={handleClearFilters}
+            onCtaClick={handleClearAll}
           />
         </div>
       )}
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="mt-8">
+        <div className="mt-8 flex flex-col items-center gap-2">
+          <p className="text-sm text-muted-foreground">
+            Page {page} of {totalPages}
+          </p>
           <Pagination>
             <PaginationContent>
               <PaginationItem>
